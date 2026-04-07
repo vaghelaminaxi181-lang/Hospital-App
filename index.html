@@ -3,113 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Duty App</title>
+    <title>Hospital Pro App</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input { width: 90%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; }
-        button { width: 95%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
-        .btn-staff { background: #28a745; margin-top: 10px; }
-        .duty-item { background: #e9ecef; padding: 10px; margin: 10px 0; border-radius: 8px; text-align: left; border-left: 5px solid #007bff; }
-        hr { margin: 30px 0; border: 0; border-top: 2px dashed #bbb; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .container { max-width: 500px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2, h3 { color: #007bff; margin-top: 0; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-admin { background: #007bff; color: white; }
+        .btn-request { background: #ffc107; color: black; margin-top: 10px; }
+        .notice-card { background: #fff3cd; border-left: 5px solid #ff9800; padding: 10px; border-radius: 5px; margin-bottom: 10px; text-align: left; }
+        .duty-item { background: #e7f3ff; padding: 15px; margin: 10px 0; border-radius: 10px; text-align: left; position: relative; }
+        .hidden { display: none; }
+        .tab-btn { width: 48%; display: inline-block; background: #ddd; color: #333; }
+        .active-tab { background: #007bff; color: white; }
     </style>
 </head>
 <body>
 
-    <h2>🏥 હોસ્પિટલ ડ્યુટી એપ</h2>
+<div class="container">
+    <h2>🏥 હોસ્પિટલ મેનેજમેન્ટ</h2>
 
-    <div class="card">
-        <h3>➕ નવી ડ્યુટી ઉમેરો (Admin)</h3>
-        <input type="text" id="staffName" placeholder="સ્ટાફનું નામ">
-        <input type="text" id="deptName" placeholder="વિભાગ (દા.ત. ICU)">
-        <input type="text" id="shiftTime" placeholder="શિફ્ટનો સમય (દા.ત. 8 AM - 2 PM)">
-        <button onclick="saveDuty()">ડેટા સેવ કરો</button>
+    <div style="margin-bottom: 20px;">
+        <button id="staffTab" class="tab-btn active-tab" onclick="showTab('staff')">સ્ટાફ વ્યુ</button>
+        <button id="adminTab" class="tab-btn" onclick="showTab('admin')">એડમિન પેનલ</button>
     </div>
 
-    <hr>
+    <div id="staffSection">
+        <div class="card">
+            <h3>📢 નોટિસ બોર્ડ</h3>
+            <div id="noticeDisplay">લોડ થઈ રહ્યું છે...</div>
+        </div>
 
-    <div class="card">
-        <h3>🔍 તમારી ડ્યુટી શોધો (Staff)</h3>
-        <input type="text" id="searchName" placeholder="તમારું નામ લખો..." onkeyup="searchDuty()">
-        <div id="results"></div>
+        <div class="card">
+            <h3>🔍 તમારી ડ્યુટી શોધો</h3>
+            <input type="text" id="searchName" placeholder="તમારું નામ લખો..." onkeyup="searchDuty()">
+            <div id="dutyResults"></div>
+        </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+    <div id="adminSection" class="hidden">
+        <div id="adminLoginCard" class="card">
+            <h3>🔑 એડમિન લોગિન</h3>
+            <input type="password" id="adminPass" placeholder="પાસવર્ડ નાખો">
+            <button class="btn-admin" onclick="checkAdmin()">લોગિન</button>
+        </div>
 
-        // તમારો Firebase Config કોડ અહીં છે
-        const firebaseConfig = {
-            apiKey: "AIzaSyBRYdZDpL-u6zSbzm41inf1ofH4_d-aaII",
-            authDomain: "hospital-app-18255.firebaseapp.com",
-            projectId: "hospital-app-18255",
-            storageBucket: "hospital-app-18255.firebasestorage.app",
-            messagingSenderId: "316092753201",
-            appId: "1:316092753201:web:7c8af9ac7a912bcf9bbc10",
-            measurementId: "G-S1R8GND0V9"
-        };
+        <div id="adminControls" class="hidden">
+            <div class="card">
+                <h3>➕ નવી ડ્યુટી એડ કરો</h3>
+                <input type="text" id="sName" placeholder="સ્ટાફનું નામ">
+                <input type="text" id="sDept" placeholder="વિભાગ (ICU/OPD)">
+                <input type="text" id="sShift" placeholder="સમય (8-2)">
+                <button class="btn-admin" onclick="saveDuty()">ડેટા સેવ કરો</button>
+            </div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // --- ૧. ડેટા સેવ કરવાનું ફંક્શન ---
-        window.saveDuty = async function() {
-            const name = document.getElementById("staffName").value;
-            const dept = document.getElementById("deptName").value;
-            const shift = document.getElementById("shiftTime").value;
-
-            if (name && dept && shift) {
-                try {
-                    await addDoc(collection(db, "duties"), {
-                        name: name,
-                        dept: dept,
-                        shift: shift,
-                        date: new Date().toLocaleDateString()
-                    });
-                    alert("ડેટા સેવ થઈ ગયો!");
-                    document.getElementById("staffName").value = "";
-                    document.getElementById("deptName").value = "";
-                    document.getElementById("shiftTime").value = "";
-                } catch (e) {
-                    alert("ભૂલ આવી: " + e.message);
-                }
-            } else {
-                alert("બધી વિગતો ભરો!");
-            }
-        }
-
-        // --- ૨. ડેટા શોધવાનું ફંક્શન ---
-        window.searchDuty = async function() {
-            const searchText = document.getElementById("searchName").value;
-            const resultsDiv = document.getElementById("results");
-
-            if (searchText.length < 2) {
-                resultsDiv.innerHTML = "";
-                return;
-            }
-
-            const q = query(collection(db, "duties"), where("name", "==", searchText));
-            const querySnapshot = await getDocs(q);
+            <div class="card">
+                <h3>📝 નવી નોટિસ મૂકો</h3>
+                <input type="text" id="noticeText" placeholder="સૂચના અહીં લખો...">
+                <button style="background: #ff9800; color: white;" onclick="saveNotice()">નોટિસ પબ્લિશ કરો</button>
+            </div>
             
-            let output = "";
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                output += `
-                    <div class="duty-item">
-                        <strong>નામ:</strong> ${data.name}<br>
-                        <strong>વિભાગ:</strong> ${data.dept}<br>
-                        <strong>સમય:</strong> ${data.shift}
-                    </div>
-                `;
-            });
+            <div class="card">
+                <h3>📩 રિવેસ્ટ લિસ્ટ</h3>
+                <div id="requestList">કોઈ વિનંતી નથી.</div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            if (output == "") {
-                resultsDiv.innerHTML = "<p style='color:red;'>કોઈ ડેટા મળ્યો નથી!</p>";
-            } else {
-                resultsDiv.innerHTML = output;
-            }
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBRYdZDpL-u6zSbzm41inf1ofH4_d-aaII",
+        authDomain: "hospital-app-18255.firebaseapp.com",
+        projectId: "hospital-app-18255",
+        storageBucket: "hospital-app-18255.firebasestorage.app",
+        messagingSenderId: "316092753201",
+        appId: "1:316092753201:web:7c8af9ac7a912bcf9bbc10"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- TAB SYSTEM ---
+    window.showTab = (tab) => {
+        if(tab === 'staff') {
+            document.getElementById('staffSection').classList.remove('hidden');
+            document.getElementById('adminSection').classList.add('hidden');
+            document.getElementById('staffTab').classList.add('active-tab');
+            document.getElementById('adminTab').classList.remove('active-tab');
+        } else {
+            document.getElementById('staffSection').classList.add('hidden');
+            document.getElementById('adminSection').classList.remove('hidden');
+            document.getElementById('adminTab').classList.add('active-tab');
+            document.getElementById('staffTab').classList.remove('active-tab');
         }
-    </script>
+    }
+
+    // --- ADMIN LOGIN ---
+    window.checkAdmin = () => {
+        const pass = document.getElementById('adminPass').value;
+        if(pass === "1234") { // તમારો ગુપ્ત પાસવર્ડ
+            document.getElementById('adminLoginCard').classList.add('hidden');
+            document.getElementById('adminControls').classList.remove('hidden');
+            loadRequests();
+        } else {
+            alert("ખોટો પાસવર્ડ!");
+        }
+    }
+
+    // --- SAVE DATA ---
+    window.saveDuty = async () => {
+        const name = document.getElementById('sName').value;
+        const dept = document.getElementById('sDept').value;
+        const shift = document.getElementById('sShift').value;
+        if(name && dept && shift) {
+            await addDoc(collection(db, "duties"), { name, dept, shift });
+            alert("ડ્યુટી સેવ થઈ!");
+        }
+    }
+
+    window.saveNotice = async () => {
+        const msg = document.getElementById('noticeText').value;
+        if(msg) {
+            await addDoc(collection(db, "notices"), { msg, time: new Date() });
+            alert("નોટિસ મુકાઈ ગઈ!");
+        }
+    }
+
+    // --- SEARCH & REQUEST ---
+    window.searchDuty = async () => {
+        const val = document.getElementById('searchName').value;
+        const resDiv = document.getElementById('dutyResults');
+        if(val.length < 2) return;
+
+        const q = query(collection(db, "duties"), where("name", "==", val));
+        const snap = await getDocs(q);
+        let html = "";
+        snap.forEach(doc => {
+            const d = doc.data();
+            html += `<div class="duty-item">
+                <b>${d.name}</b><br>વિભાગ: ${d.dept}<br>સમય: ${d.shift}
+                <button class="btn-request" onclick="sendRequest('${d.name}')">🔄 શિફ્ટ બદલવા વિનંતી</button>
+            </div>`;
+        });
+        resDiv.innerHTML = html || "મળ્યું નથી.";
+    }
+
+    window.sendRequest = async (name) => {
+        await addDoc(collection(db, "requests"), { name, status: "Pending", time: new Date() });
+        alert("વિનંતી એડમિનને મોકલી દેવામાં આવી છે.");
+    }
+
+    // --- REALTIME NOTICES ---
+    onSnapshot(collection(db, "notices"), (snap) => {
+        let h = "";
+        snap.forEach(doc => h += `<div class="notice-card">${doc.data().msg}</div>`);
+        document.getElementById('noticeDisplay').innerHTML = h || "કોઈ નવી નોટિસ નથી.";
+    });
+
+    // --- LOAD REQUESTS FOR ADMIN ---
+    async function loadRequests() {
+        onSnapshot(collection(db, "requests"), (snap) => {
+            let h = "";
+            snap.forEach(doc => h += `<div class="duty-item"><b>${doc.data().name}</b> એ શિફ્ટ બદલવા કહ્યું છે.</div>`);
+            document.getElementById('requestList').innerHTML = h || "કોઈ નવી રિક્વેસ્ટ નથી.";
+        });
+    }
+
+</script>
 </body>
 </html>
