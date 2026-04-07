@@ -14,7 +14,8 @@
         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
         .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
         .btn-active:active { transform: scale(0.95); transition: 0.1s; }
-        .notice-card { border-left: 5px solid #ef4444; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .notice-card { border-left: 5px solid #ef4444; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.05); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -24,7 +25,7 @@
     <header id="mainHeader" class="hidden gradient-header text-white p-5 rounded-b-[35px] shadow-lg sticky top-0 z-50">
         <div class="flex justify-between items-center mb-1">
             <h1 class="text-xl font-black tracking-tighter uppercase">Sanskardham</h1>
-            <div id="roleBadge" class="bg-white/20 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase border border-white/30">Guest</div>
+            <div id="roleBadge" class="bg-white/20 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase border border-white/30 tracking-widest">Guest</div>
         </div>
         <div id="dateArea" class="flex items-center bg-black/10 rounded-xl px-3 py-1.5 mt-2 border border-white/10">
             <span class="text-xs mr-2">📅</span>
@@ -36,35 +37,35 @@
     <div id="loginPage" class="p-8 flex-grow flex flex-col justify-center space-y-6">
         <div class="text-center mb-4">
             <div class="text-6xl mb-2">🏥</div>
-            <h2 class="text-2xl font-black text-gray-800 uppercase italic">Sanskardham Vision</h2>
+            <h2 class="text-2xl font-black text-gray-800 uppercase italic">Staff Login</h2>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Select your role to continue</p>
         </div>
 
         <div class="space-y-4">
-            <div class="bg-gray-50 p-4 rounded-3xl border border-gray-100">
-                <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase text-center">Login As</p>
-                <div class="flex space-x-2">
-                    <button onclick="setLoginType('staff')" id="btnStaff" class="flex-1 p-3 rounded-xl font-bold text-xs bg-blue-600 text-white shadow-md">STAFF</button>
-                    <button onclick="setLoginType('admin')" id="btnAdmin" class="flex-1 p-3 rounded-xl font-bold text-xs bg-gray-200 text-gray-500">ADMIN</button>
-                </div>
+            <div class="flex p-1 bg-gray-100 rounded-2xl">
+                <button onclick="setLoginType('staff')" id="btnStaff" class="flex-1 py-3 rounded-xl font-bold text-xs bg-blue-600 text-white shadow-md transition-all">STAFF</button>
+                <button onclick="setLoginType('admin')" id="btnAdmin" class="flex-1 py-3 rounded-xl font-bold text-xs text-gray-500 transition-all">ADMIN</button>
             </div>
 
-            <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
-            <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
-            <button onclick="processLogin()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold btn-active uppercase shadow-xl tracking-widest">Login</button>
+            <div class="space-y-3">
+                <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold focus:border-blue-400 transition-all">
+                <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold focus:border-blue-400 transition-all">
+                <button onclick="processLogin()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold btn-active uppercase shadow-xl tracking-widest mt-2">Login</button>
+            </div>
         </div>
     </div>
 
     <div id="mainMenu" class="hidden p-5 space-y-4 flex-grow">
         <div class="grid grid-cols-2 gap-3">
-            <div onclick="showSection('dutySection')" class="p-6 bg-white rounded-[25px] flex flex-col items-center justify-center border-2 border-blue-50 shadow-sm btn-active">
+            <div onclick="showSection('dutySection')" class="p-6 bg-white rounded-[30px] flex flex-col items-center justify-center border-2 border-blue-50 shadow-sm btn-active cursor-pointer">
                 <span class="text-3xl mb-1">📅</span>
                 <span class="font-black text-slate-700 text-[10px] uppercase">Duty List</span>
             </div>
-            <div onclick="showSection('noticeSection')" class="p-6 bg-white rounded-[25px] flex flex-col items-center justify-center border-2 border-red-50 shadow-sm btn-active">
+            <div onclick="showSection('noticeSection')" class="p-6 bg-white rounded-[30px] flex flex-col items-center justify-center border-2 border-red-50 shadow-sm btn-active cursor-pointer">
                 <span class="text-3xl mb-1">📢</span>
                 <span class="font-black text-slate-700 text-[10px] uppercase">Notice Board</span>
             </div>
-            <div onclick="showSection('profileSection')" class="p-6 bg-white rounded-[25px] flex flex-col items-center justify-center border-2 border-green-50 shadow-sm btn-active col-span-2">
+            <div onclick="showSection('profileSection')" class="p-6 bg-white rounded-[30px] flex flex-col items-center justify-center border-2 border-green-50 shadow-sm btn-active col-span-2 cursor-pointer">
                 <span class="text-3xl mb-1">👤</span>
                 <span class="font-black text-slate-700 text-[10px] uppercase">My Profile</span>
             </div>
@@ -75,17 +76,27 @@
         <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] uppercase">⬅ Back</button>
         <h2 class="text-2xl font-black text-gray-800 uppercase italic">📢 સૂચના બોર્ડ</h2>
         
-        <div id="adminNoticeInput" class="hidden bg-red-50 p-4 rounded-[25px] space-y-3 border border-red-100">
-            <textarea id="noticeText" rows="2" class="w-full p-3 rounded-xl border-none font-bold text-sm outline-none" placeholder="નવી સૂચના લખો..."></textarea>
-            <button onclick="postNotice()" class="w-full bg-red-600 text-white p-3 rounded-xl font-bold uppercase text-[10px]">સૂચના મોકલો</button>
+        <div id="adminNoticeInput" class="hidden bg-red-50 p-4 rounded-[25px] space-y-3 border border-red-100 shadow-inner">
+            <textarea id="noticeText" rows="2" class="w-full p-3 rounded-xl border-none font-bold text-sm outline-none" placeholder="નવી સૂચના અહીં લખો..."></textarea>
+            <button onclick="postNotice()" class="w-full bg-red-600 text-white p-3 rounded-xl font-bold uppercase text-[10px] shadow-md active:scale-95">સૂચના મોકલો</button>
         </div>
 
         <div id="noticeList" class="space-y-4"></div>
     </div>
 
-    <div id="dutySection" class="hidden p-5 space-y-4 flex-grow">
+    <div id="dutySection" class="hidden p-5 space-y-4 flex-grow pb-32">
         <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] uppercase">⬅ Back</button>
-        <div id="deptGrid" class="grid grid-cols-2 gap-3 mt-4"></div>
+        <div id="deptGrid" class="grid grid-cols-2 gap-3 mt-2"></div>
+    </div>
+
+    <div id="profileSection" class="hidden p-5 space-y-4 flex-grow">
+        <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] uppercase">⬅ Back</button>
+        <div class="bg-blue-50 p-6 rounded-[30px] space-y-3 border border-blue-100">
+            <p class="text-center font-bold text-blue-800 text-sm mb-2 uppercase tracking-tighter">Staff Details</p>
+            <input type="text" placeholder="Full Name" class="w-full p-3 rounded-xl border-none font-bold text-sm shadow-sm">
+            <input type="text" placeholder="Staff ID" class="w-full p-3 rounded-xl border-none font-bold text-sm shadow-sm">
+            <button class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold uppercase text-[10px] shadow-lg">Save Profile</button>
+        </div>
     </div>
 
     <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 border-t p-3 flex justify-center z-50">
@@ -94,31 +105,32 @@
 </div>
 
 <script>
+    // --- FIREBASE SETUP ---
     const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref("hospital_v11_final");
     const noticeDB = firebase.database().ref("hospital_notices_v2");
 
-    let userRole = "staff", shift = "Day", selectedDate = "";
+    let currentRole = "staff", shift = "Day", selectedDate = "";
 
-    // Login Type Selection
+    // Role Selection
     function setLoginType(type) {
-        userRole = type;
-        document.getElementById('btnStaff').className = type === 'staff' ? 'flex-1 p-3 rounded-xl font-bold text-xs bg-blue-600 text-white shadow-md' : 'flex-1 p-3 rounded-xl font-bold text-xs bg-gray-200 text-gray-500';
-        document.getElementById('btnAdmin').className = type === 'admin' ? 'flex-1 p-3 rounded-xl font-bold text-xs bg-red-600 text-white shadow-md' : 'flex-1 p-3 rounded-xl font-bold text-xs bg-gray-200 text-gray-500';
+        currentRole = type;
+        document.getElementById('btnStaff').className = type === 'staff' ? 'flex-1 py-3 rounded-xl font-bold text-xs bg-blue-600 text-white shadow-md' : 'flex-1 py-3 rounded-xl font-bold text-xs text-gray-500';
+        document.getElementById('btnAdmin').className = type === 'admin' ? 'flex-1 py-3 rounded-xl font-bold text-xs bg-red-600 text-white shadow-md' : 'flex-1 py-3 rounded-xl font-bold text-xs text-gray-500';
     }
 
+    // --- LOGIN LOGIC (AS PER YOUR REQUEST) ---
     function processLogin() {
         const id = document.getElementById('loginID').value.trim();
         const pass = document.getElementById('loginPass').value;
 
-        // --- અહીં તમે તમારા ID/Pass સેટ કરી શકો છો ---
-        if (userRole === "admin") {
-            if (id === "admin" && pass === "1234") loginSuccess("ADMIN"); // Admin ID
-            else alert("ખોટો Admin ID/Password!");
+        if (currentRole === "admin") {
+            if (id === "ssgd" && pass === "9099020925") loginSuccess("ADMIN");
+            else alert("ખોટો Admin ID અથવા Password!");
         } else {
-            if (id === "ssgd" && pass === "9712284024") loginSuccess("STAFF"); // Staff ID
-            else alert("ખોટો Staff ID/Password!");
+            if (id === "ssgd" && pass === "9712284024") loginSuccess("STAFF");
+            else alert("ખોટો Staff ID અથવા Password!");
         }
     }
 
@@ -129,25 +141,70 @@
         document.getElementById('roleBadge').innerText = roleText;
         document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
         
-        if(userRole === 'admin') document.getElementById('adminNoticeInput').classList.remove('hidden');
+        if(currentRole === 'admin') document.getElementById('adminNoticeInput').classList.remove('hidden');
         syncNotices();
     }
 
-    // Notice Board Functions
+    // Notice Sync
     function syncNotices() {
         noticeDB.on('value', (snap) => {
             const list = document.getElementById('noticeList');
             list.innerHTML = "";
             const data = snap.val();
-            if(!data) return list.innerHTML = "<p class='text-center text-gray-400 text-xs py-10 font-bold'>કોઈ સૂચના નથી.</p>";
+            if(!data) return list.innerHTML = "<p class='text-center text-gray-400 text-[10px] py-10 font-bold uppercase'>કોઈ સૂચના નથી.</p>";
             
             Object.keys(data).reverse().forEach(id => {
                 const n = data[id];
                 list.innerHTML += `
-                    <div class="notice-card p-4 rounded-2xl">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="bg-red-100 text-red-600 px-2 py-0.5 rounded text-[7px] font-black uppercase">Official</span>
-                            <div class="text-right text-[7px] font-bold text-gray-400 uppercase">${n.date} | ${n.time}</div>
+                    <div class="notice-card p-4 rounded-2xl mb-3">
+                        <div class="flex justify-between items-start mb-2 pb-1 border-b border-gray-50">
+                            <span class="bg-red-600 text-white px-2 py-0.5 rounded text-[7px] font-black uppercase">Official</span>
+                            <div class="text-right">
+                                <p class="text-[8px] font-black text-slate-800">${n.date}</p>
+                                <p class="text-[7px] font-bold text-blue-500">${n.time}</p>
+                            </div>
                         </div>
-                        <p class="text-sm font-bold text-slate-700">${n.text}</p>
-                        ${userRole === 'admin' ? `<button onclick="deleteNotice('${id}')" class="text-
+                        <p class="text-sm font-bold text-slate-700 leading-snug">${n.text}</p>
+                        ${currentRole === 'admin' ? `<button onclick="deleteNotice('${id}')" class="text-[8px] text-red-300 mt-2 font-bold uppercase tracking-tighter">× Delete</button>` : ''}
+                    </div>`;
+            });
+        });
+    }
+
+    function postNotice() {
+        const text = document.getElementById('noticeText').value.trim();
+        if(!text) return;
+        const now = new Date();
+        noticeDB.push({
+            text: text,
+            date: now.toLocaleDateString('gu-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+            time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }).then(() => {
+            document.getElementById('noticeText').value = "";
+            alert("સૂચના મોકલાઈ ગઈ!");
+        });
+    }
+
+    function deleteNotice(id) { if(confirm("સૂચના કાઢી નાખવી છે?")) noticeDB.child(id).remove(); }
+
+    // Navigation
+    function showSection(id) {
+        document.getElementById('mainMenu').classList.add('hidden');
+        document.getElementById(id).classList.remove('hidden');
+        if(id === 'dutySection') renderGrid();
+    }
+    function backToMenu() {
+        document.querySelectorAll('#dutySection, #noticeSection, #profileSection').forEach(e => e.classList.add('hidden'));
+        document.getElementById('mainMenu').classList.remove('hidden');
+    }
+    function renderGrid() {
+        const grid = document.getElementById('deptGrid'); grid.innerHTML = "";
+        ["OPD", "EMERGENCY", "ICU", "WARD"].forEach(d => {
+            grid.innerHTML += `<div class="p-6 bg-white rounded-[30px] border border-gray-100 shadow-sm flex flex-col items-center">
+                <span class="text-3xl mb-1">🏥</span><span class="font-bold text-slate-700 text-[10px] uppercase">${d}</span>
+            </div>`;
+        });
+    }
+</script>
+</body>
+</html>
