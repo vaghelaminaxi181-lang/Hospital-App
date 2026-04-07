@@ -1,97 +1,59 @@
-<!DOCTYPE html>
-<html lang="gu">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SANSKARDHAM VISION V2.0</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+// ફક્ત Admin જ પોસ્ટ કરી શકે તેવો સુધારેલો ફંકશન
+async function postNotice() {
+    // પહેલા ચેક કરો કે લોગીન કરનાર Admin છે કે નહીં
+    if (role !== "admin") {
+        alert("માત્ર એડમિન જ નોટિસ મૂકી શકે છે!");
+        return;
+    }
 
-    <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8faff; }
-        .vision-blue { background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%); }
-        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
-        .login-btn { background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%); }
+    const msg = document.getElementById('noticeMsg').value.trim();
+    const fileInput = document.getElementById('noticeFile');
+    let fileData = null;
+    let fileType = "";
+
+    if(!msg && fileInput.files.length === 0) {
+        alert("કંઈક લખો અથવા ફાઈલ પસંદ કરો");
+        return;
+    }
+
+    // જો ફાઈલ સિલેક્ટ કરી હોય તો તેને Base64 માં બદલો (WhatsApp જેવું ફીચર)
+    if(fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileType = file.type;
         
-        /* WhatsApp Style for Notice Board */
-        .whatsapp-bg { background-color: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
-        .msg-bubble { max-width: 80%; padding: 10px; border-radius: 12px; margin-bottom: 8px; position: relative; font-size: 13px; }
-        .msg-admin { background: #dcf8c6; align-self: flex-start; border-top-left-radius: 0; }
-    </style>
-</head>
-<body>
+        // ફાઈલ સાઈઝ ચેક (વધારે મોટી ફાઈલ ડેટાબેઝ ને સ્લો કરી શકે)
+        if (file.size > 2 * 1024 * 1024) { 
+            alert("ફાઈલ 2MB થી નાની હોવી જોઈએ");
+            return;
+        }
+        fileData = await convertBase64(file);
+    }
 
-<div class="max-w-md mx-auto min-h-screen flex flex-col relative overflow-hidden bg-white">
+    const newNotice = {
+        message: msg,
+        file: fileData,
+        type: fileType,
+        time: new Date().toLocaleString('gu-IN'), // ગુજરાતી સમય મુજબ
+        sender: "ADMIN"
+    };
 
-    <div id="loginPage" class="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center p-8 transition-all duration-500">
-        <img src="https://cdn-icons-png.flaticon.com/512/3063/3063176.png" class="w-24 mb-4" alt="Hospital">
-        <h2 class="text-3xl font-black text-slate-800 mb-10">Staff Login</h2>
-        
-        <div class="w-full space-y-4">
-            <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-100 border-none outline-none text-center font-bold text-gray-600">
-            <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-100 border-none outline-none text-center font-bold text-gray-600">
-            <button onclick="checkLogin()" class="w-full login-btn text-white p-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">LOGIN</button>
-        </div>
-    </div>
+    // Firebase માં ડેટા મોકલો
+    noticeDB.push(newNotice).then(() => {
+        alert("નોટિસ સફળતાપૂર્વક શેર કરવામાં આવી!");
+        document.getElementById('noticeMsg').value = "";
+        document.getElementById('noticeFile').value = "";
+        document.getElementById('fileName').innerText = "";
+    }).catch((error) => {
+        alert("ભૂલ આવી: " + error.message);
+    });
+}
 
-    <div id="mainApp" class="hidden flex flex-col min-h-screen">
-        
-        <div class="vision-blue text-white p-6 pb-12 rounded-b-[40px] shadow-lg">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-black tracking-tight uppercase">SANSKARDHAM</h1>
-                    <p class="text-[10px] font-bold opacity-70">VISION V2.0</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <div class="bg-white/20 p-2 rounded-full">☀️</div>
-                    <button id="roleLabel" class="bg-white/20 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">ADMIN</button>
-                </div>
-            </div>
-
-            <div class="bg-white/10 p-3 rounded-2xl flex items-center justify-between border border-white/20">
-                <div class="flex items-center space-x-3">
-                    <span class="text-lg">📅</span>
-                    <input type="date" id="mainDate" onchange="syncAll()" class="bg-transparent font-bold outline-none text-white cursor-pointer">
-                </div>
-                <span class="text-white opacity-50">▼</span>
-            </div>
-        </div>
-
-        <div class="px-6 -mt-6 flex-grow space-y-6 pb-24">
-            
-            <div class="bg-white p-4 rounded-3xl shadow-xl flex items-center space-x-3 border border-gray-50">
-                <span class="text-xl">🔍</span>
-                <input type="text" placeholder="તમારી ડ્યુટી શોધો..." class="flex-grow outline-none font-medium text-gray-500">
-            </div>
-
-            <button onclick="openNotice()" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-bold shadow-lg flex items-center justify-center space-x-2 active:scale-95 transition-all">
-                <span>📢</span> <span>NOTICE BOARD (નોટિસ જુઓ)</span>
-            </button>
-
-            <div>
-                <div class="flex justify-between items-center mb-4 px-2">
-                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Departments</h3>
-                    <button class="text-[10px] font-bold text-blue-600">+ ADD DEPT</button>
-                </div>
-                
-                <div id="deptGrid" class="grid grid-cols-2 gap-4">
-                    </div>
-            </div>
-        </div>
-
-        <footer class="text-center py-6">
-            <p class="text-[10px] font-black text-blue-900 opacity-40 tracking-[4px] uppercase">JATIN SOLANKI BY VISION</p>
-        </footer>
-    </div>
-
-    <div id="noticePage" class="fixed inset-0 z-[200] bg-white hidden flex flex-col">
-        <div class="vision-blue p-4 text-white flex items-center space-x-4 shadow-md">
-            <button onclick="closeNotice()" class="text-xl">←</button>
-            <h2 class="font-bold">Notice Board</h2>
-        </div>
-        <div id="chatBox" class="flex-grow whatsapp-bg p-4 overflow-y-auto flex flex-col"></div>
-        
-        <div id="adminPanel" class="hidden
+// ફાઈલને ડેટા સ્ટ્રીમમાં બદલવા માટેનું ફંકશન
+function convertBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
