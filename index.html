@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanskardham Vision v4.0</title>
+    <title>Sanskardham Hospital v4.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     
@@ -14,46 +14,45 @@
         body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; }
         .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
         .btn-active:active { transform: scale(0.95); transition: 0.1s; }
-        .menu-card { height: 90px; border: 1.5px solid #e2e8f0; }
-        .msg-bubble { max-width: 85%; padding: 12px; border-radius: 18px; margin-bottom: 10px; position: relative; }
-        .msg-admin { background: #dcf8c6; align-self: flex-start; border-bottom-left-radius: 2px; shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .whatsapp-bg { background-color: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        .msg-bubble { max-width: 85%; padding: 10px; border-radius: 15px; margin-bottom: 8px; }
+        .msg-admin { background: #dcf8c6; align-self: flex-start; border-bottom-left-radius: 2px; }
     </style>
 </head>
 <body>
 
-<div class="max-w-md mx-auto min-h-screen flex flex-col bg-white relative shadow-2xl overflow-hidden">
+<div class="max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-2xl overflow-hidden">
     
-    <header class="gradient-header text-white p-5 rounded-b-[30px] shadow-lg sticky top-0 z-50">
+    <header id="appHeader" class="hidden gradient-header text-white p-5 rounded-b-[30px] shadow-lg sticky top-0 z-50">
         <div class="flex justify-between items-center">
             <h1 class="text-xl font-black uppercase">Sanskardham</h1>
-            <div id="roleBadge" class="bg-white/20 px-2 py-1 rounded text-[9px] font-bold uppercase">Guest</div>
+            <div id="roleBadge" class="bg-white/20 px-2 py-1 rounded text-[9px] font-bold uppercase border border-white/10">Guest</div>
         </div>
-        <div id="dateArea" class="hidden flex items-center bg-black/10 rounded-xl px-3 py-1.5 mt-3">
+        <div id="dateArea" class="flex items-center bg-black/10 rounded-xl px-3 py-1.5 mt-3">
             <input type="date" id="dateInput" onchange="refreshAll()" class="bg-transparent text-white font-bold text-xs w-full outline-none">
             <button onclick="toggleShift()" id="shiftIco" class="ml-2 bg-white/20 px-2 py-1 rounded text-sm">☀️</button>
         </div>
     </header>
 
     <div id="loginPage" class="p-8 flex-grow flex flex-col justify-center space-y-4">
-        <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
-        <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
-        <button onclick="login()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold btn-active uppercase">Login</button>
+        <div class="text-center mb-6">
+            <span class="text-5xl">🏥</span>
+            <h2 class="text-2xl font-black text-gray-800 mt-2">Staff Login</h2>
+        </div>
+        <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-100 border-none outline-none text-center font-bold">
+        <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-100 border-none outline-none text-center font-bold">
+        <button onclick="loginProcess()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold btn-active shadow-lg">LOGIN</button>
     </div>
 
     <div id="mainMenu" class="hidden p-5 space-y-4 flex-grow">
         <div class="grid grid-cols-2 gap-3">
-            <div onclick="showDutySection()" class="menu-card p-4 bg-white rounded-3xl flex flex-col items-center justify-center btn-active cursor-pointer border-blue-50 border-2">
+            <div onclick="showDutySection()" class="p-4 bg-white rounded-3xl flex flex-col items-center justify-center border-2 border-blue-50 shadow-sm btn-active">
                 <span class="text-3xl mb-1">📅</span>
                 <span class="font-black text-slate-700 text-[10px] uppercase">Duty List</span>
             </div>
-            <div onclick="showNoticeBoard()" class="menu-card p-4 bg-white rounded-3xl flex flex-col items-center justify-center btn-active cursor-pointer border-green-50 border-2">
+            <div onclick="showNoticeBoard()" class="p-4 bg-white rounded-3xl flex flex-col items-center justify-center border-2 border-green-50 shadow-sm btn-active">
                 <span class="text-3xl mb-1">📢</span>
                 <span class="font-black text-slate-700 text-[10px] uppercase">Notice Board</span>
-            </div>
-            <div onclick="showProfileSection()" class="menu-card p-4 bg-white rounded-3xl flex flex-col items-center justify-center btn-active cursor-pointer border-orange-50 border-2">
-                <span class="text-3xl mb-1">👤</span>
-                <span class="font-black text-slate-700 text-[10px] uppercase">Profile</span>
             </div>
         </div>
     </div>
@@ -64,125 +63,15 @@
             <span class="font-black text-gray-700 text-xs uppercase tracking-widest">Notice Board</span>
             <div class="w-8"></div>
         </div>
-        
-        <div id="chatArea" class="flex-grow whatsapp-bg p-4 overflow-y-auto flex flex-col">
-            </div>
-
+        <div id="chatArea" class="flex-grow whatsapp-bg p-4 overflow-y-auto flex flex-col"></div>
         <div id="adminChatInput" class="hidden p-3 bg-gray-100 border-t flex flex-col space-y-2">
             <div class="flex space-x-2">
-                <input type="text" id="msgText" placeholder="Type a message..." class="flex-grow p-3 rounded-full border-none shadow-sm text-sm outline-none">
-                <button onclick="sendMsg('text')" class="bg-green-600 text-white p-3 rounded-full shadow-lg">➤</button>
+                <input type="text" id="msgText" placeholder="Type message..." class="flex-grow p-3 rounded-full border-none shadow-sm text-sm outline-none">
+                <button onclick="sendMsg('text')" class="bg-green-600 text-white p-3 rounded-full">➤</button>
             </div>
             <div class="flex justify-around py-1">
                 <label class="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-[10px] font-bold cursor-pointer">
-                    📷 Photo <input type="file" id="imgFile" accept="image/*" class="hidden" onchange="uploadFile('image')">
+                    📷 Photo <input type="file" accept="image/*" class="hidden" onchange="uploadFile('image', this)">
                 </label>
                 <label class="bg-red-100 text-red-700 px-4 py-1.5 rounded-full text-[10px] font-bold cursor-pointer">
-                    📄 PDF <input type="file" id="pdfFile" accept=".pdf" class="hidden" onchange="uploadFile('pdf')">
-                </label>
-            </div>
-        </div>
-    </div>
-
-    <div id="dutySection" class="hidden p-5 space-y-4 flex-grow">
-        <button onclick="backToMenu()" class="text-blue-600 font-bold text-xs">⬅ Back</button>
-        <div id="deptGrid" class="grid grid-cols-2 gap-3 mt-4"></div>
-    </div>
-
-    <footer class="p-3 text-center bg-white border-t">
-        <p class="text-[8px] font-black opacity-30 tracking-[3px]">VISION V4.0 BY JATIN SOLANKI</p>
-    </footer>
-</div>
-
-<script>
-    // Firebase Config (તમારી લિંક અહીં જ છે)
-    const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database().ref("hospital_v11_final");
-    const chatDB = firebase.database().ref("hospital_notices");
-
-    let role = "viewer", shift = "Day", selectedDate = "";
-
-    function login() {
-        const id = document.getElementById('loginID').value.trim();
-        const p = document.getElementById('loginPass').value;
-        if(id === "ssgd" && p === "9099020925") role = "admin";
-        else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else return alert("Invalid!");
-
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('mainMenu').classList.remove('hidden');
-        document.getElementById('roleBadge').innerText = role;
-        
-        // જો એડમિન હોય તો ચેટ ઇનપુટ બતાવવું
-        if(role === 'admin') document.getElementById('adminChatInput').classList.remove('hidden');
-        
-        loadNotices();
-    }
-
-    function showNoticeBoard() {
-        document.getElementById('mainMenu').classList.add('hidden');
-        document.getElementById('noticeBoard').classList.remove('hidden');
-        // ચેટને નીચે સ્ક્રોલ કરો
-        setTimeout(() => { let c = document.getElementById('chatArea'); c.scrollTop = c.scrollHeight; }, 500);
-    }
-
-    function backToMenu() {
-        document.getElementById('noticeBoard').classList.add('hidden');
-        document.getElementById('dutySection').classList.add('hidden');
-        document.getElementById('mainMenu').classList.remove('hidden');
-    }
-
-    // Notice Board Logic
-    function sendMsg(type, content = "") {
-        const text = document.getElementById('msgText').value;
-        if(!text && type === 'text') return;
-        
-        const newNotice = {
-            type: type,
-            content: type === 'text' ? text : content,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            timestamp: Date.now()
-        };
-        chatDB.push(newNotice);
-        document.getElementById('msgText').value = "";
-    }
-
-    function loadNotices() {
-        chatDB.on('value', (snap) => {
-            const chatArea = document.getElementById('chatArea');
-            chatArea.innerHTML = "";
-            const data = snap.val();
-            if(!data) return;
-            
-            Object.values(data).forEach(msg => {
-                let html = "";
-                if(msg.type === 'text') {
-                    html = `<div class="msg-bubble msg-admin shadow-sm">
-                                <p class="text-sm text-gray-800">${msg.content}</p>
-                                <span class="text-[8px] text-gray-500 float-right mt-1">${msg.time}</span>
-                            </div>`;
-                } else if(msg.type === 'image') {
-                    html = `<div class="msg-bubble msg-admin shadow-sm">
-                                <img src="${msg.content}" class="rounded-lg w-full mb-1 border" onclick="window.open('${msg.content}')">
-                                <span class="text-[8px] text-gray-500 float-right">${msg.time}</span>
-                            </div>`;
-                } else if(msg.type === 'pdf') {
-                    html = `<div class="msg-bubble msg-admin shadow-sm flex items-center space-x-3">
-                                <span class="text-2xl">📄</span>
-                                <div onclick="window.open('${msg.content}')" class="cursor-pointer">
-                                    <p class="text-[10px] font-bold text-red-600 uppercase">Notice_Document.pdf</p>
-                                    <p class="text-[8px] text-gray-400">Click to Open PDF</p>
-                                </div>
-                                <span class="text-[8px] text-gray-500 ml-auto">${msg.time}</span>
-                            </div>`;
-                }
-                chatArea.innerHTML += html;
-            });
-            chatArea.scrollTop = chatArea.scrollHeight;
-        });
-    }
-
-    // ફાઈલ અપલોડ (Base64 માં કન્વર્ટ કરીને સીધું ફાયરબેઝમાં)
-    function uploadFile(type) {
-        const fileInput = type === '
+                    📄 PDF <input type="file" accept=".pdf" class="hidden" onchange="uploadFile('pdf', this
