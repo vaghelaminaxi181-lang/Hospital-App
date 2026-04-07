@@ -1,137 +1,205 @@
-<!DOCTYPE html><html lang="gu">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Staff Duty Pro</title><script src="https://cdn.tailwindcss.com"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><style>
-body { font-family: sans-serif; background:#f1f5f9; }
-.card { background:white; padding:15px; border-radius:15px; margin-top:10px; }
-</style></head><body><div class="max-w-md mx-auto p-4"><!-- LOGIN --><div id="loginPage">
-<h2 class="text-xl font-bold mb-3 text-center">🏥 Staff Login</h2>
-<input id="id" placeholder="User ID" class="w-full p-3 border mb-2 rounded">
-<input id="pass" type="password" placeholder="Password" class="w-full p-3 border mb-2 rounded">
-<button onclick="login()" class="w-full bg-blue-600 text-white p-3 rounded">Login</button>
-</div><!-- APP --><div id="app" class="hidden"><!-- HEADER --><div class="card text-center">
-<input type="date" id="date" class="p-2 border rounded" onchange="changeDate()">
-<button onclick="toggleShift()" class="ml-2 bg-gray-200 px-3 py-1 rounded">Shift</button>
-<p id="shiftText" class="mt-2 font-bold"></p>
-</div><!-- SEARCH --><div class="card">
-<input id="search" onkeyup="search()" placeholder="Search name..." class="w-full p-3 border rounded">
-</div><!-- ADMIN MULTI DATE --><div id="multiBox" class="card hidden">
-<input id="multi" placeholder="2026-04-07,2026-04-08" class="w-full p-3 border rounded">
-</div><!-- DUTY LIST --><div class="card">
-<h3 class="font-bold">Duty</h3>
-<div id="list"></div>
-</div></div></div><script>
-const firebaseConfig = {
- databaseURL:"https://jatin-9a897-default-rtdb.firebaseio.com/"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database().ref("hospital_v11_final");
+  <title>Hospital Duty App</title>
 
-let role="", shift="Day", date="", data={};
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-window.onload=()=>{
- let d=new Date().toISOString().split('T')[0];
- document.getElementById("date").value=d;
- date=d;
-};
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+    }
 
-// LOGIN
-function login(){
- let i=id.value, p=pass.value;
+    header {
+      background: linear-gradient(to right, #1e40af, #3b82f6);
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
 
- if(i==="ssgd" && p==="9099020925") role="admin";
- else if(i==="ssgd" && p==="9712284024") role="staff";
- else return alert("Wrong");
+    .container {
+      padding: 20px;
+    }
 
- loginPage.style.display="none";
- app.style.display="block";
+    input, button {
+      padding: 10px;
+      margin: 5px;
+    }
 
- if(role==="admin") multiBox.style.display="block";
+    .slot {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 5px;
+      cursor: pointer;
+    }
 
- load();
-}
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: black;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
 
-// LOAD DATA
-function load(){
- db.on("value",s=>{
-   data=s.val()||{};
-   render();
- });
-}
+<body>
 
-// RENDER
-function render(){
- let h="";
- for(let i=1;i<=6;i++){
-   let key=`${date}_GEN_${i}_${shift}`;
-   let val=data[key]||"---";
+<header>
+  <h2>🏥 SANSKARDHAM VISION</h2>
+</header>
 
-   h+=`
-   <div class="flex justify-between p-2 border-b">
-   <span>Slot ${i}</span>
-   <span>
-     <span onclick="${role==='admin'?`edit('${key}')`:''}" class="font-bold">${val}</span>
-     ${role==="admin" && val!=="---"?`<button onclick="del('${key}')">❌</button>`:""}
-   </span>
-   </div>`;
- }
- list.innerHTML=h;
-}
+<div class="container">
 
-// EDIT
-let current="";
-function edit(k){
- current=k;
- let v=data[k]||"";
- let n=prompt("Name",v);
- if(n===null) return;
+  <!-- Login -->
+  <div id="loginBox">
+    <input id="id" placeholder="ID"><br>
+    <input id="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+  </div>
 
- let multi=document.getElementById("multi").value;
+  <!-- Main App -->
+  <div id="app" style="display:none;">
 
- if(role==="admin" && multi){
-   let dates=multi.split(",");
-   let up={};
-   dates.forEach(d=>{
-     let p=k.split("_");
-     up[`${d.trim()}_${p[1]}_${p[2]}_${p[3]}`]=n;
-   });
-   db.update(up);
- } else {
-   db.update({[k]:n});
- }
-}
+    <input type="date" id="datePicker" onchange="loadDuty()">
 
-// DELETE
-function del(k){
- if(confirm("Delete?")){
-  db.update({[k]:"---"});
- }
-}
+    <button onclick="toggleShift()">Toggle Shift</button>
 
-// DATE CHANGE
-function changeDate(){
- date=document.getElementById("date").value;
- render();
-}
+    <h3 id="shiftText">Shift: Day</h3>
 
-// SHIFT
-function toggleShift(){
- shift=(shift==="Day")?"Night":"Day";
- shiftText.innerText=shift;
- render();
-}
+    <div id="dutyList"></div>
 
-// SEARCH
-function search(){
- let q=document.getElementById("search").value.toLowerCase();
- let res="";
- for(let k in data){
-   if(data[k].toLowerCase().includes(q)){
-     res+=data[k]+"<br>";
-   }
- }
- list.innerHTML=res||"Not found";
-}
-</script></body>
+    <h3>📢 Notice</h3>
+    <input id="noticeText" placeholder="Enter notice">
+    <button onclick="addNotice()">Add</button>
+
+    <div id="noticeList"></div>
+
+  </div>
+
+</div>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let role = "";
+  let shift = "Day";
+
+  function login() {
+    const id = document.getElementById("id").value;
+    const pass = document.getElementById("password").value;
+
+    if (id === "ssgd" && pass === "9099020925") {
+      role = "admin";
+    } else if (id === "ssgd" && pass === "9712284024") {
+      role = "staff";
+    } else {
+      showToast("Invalid Login ❌");
+      return;
+    }
+
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    loadDuty();
+    loadNotice();
+  }
+
+  function toggleShift() {
+    shift = (shift === "Day") ? "Night" : "Day";
+    document.getElementById("shiftText").innerText = "Shift: " + shift;
+    loadDuty();
+  }
+
+  function getKey(dept, slot) {
+    const date = document.getElementById("datePicker").value;
+    return `${date}_${dept}_${slot}_${shift}`;
+  }
+
+  function loadDuty() {
+    const container = document.getElementById("dutyList");
+    container.innerHTML = "";
+
+    const depts = ["OPD", "ICU", "WARD"];
+
+    depts.forEach(dept => {
+      for (let i = 1; i <= 3; i++) {
+        const key = getKey(dept, i);
+
+        db.ref("hospital_v11_final/" + key).on("value", snap => {
+          const name = snap.val() || "Empty";
+
+          let div = document.createElement("div");
+          div.className = "slot";
+          div.innerText = `${dept} Slot ${i}: ${name}`;
+
+          div.onclick = () => editSlot(key);
+
+          container.appendChild(div);
+        });
+      }
+    });
+  }
+
+  function editSlot(key) {
+    if (role !== "admin") return;
+
+    const name = prompt("Enter Name:");
+    if (name) {
+      db.ref("hospital_v11_final/" + key).set(name);
+      showToast("Saved ✅");
+    }
+  }
+
+  function addNotice() {
+    if (role !== "admin") return;
+
+    const text = document.getElementById("noticeText").value;
+
+    const notice = {
+      text: text,
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString()
+    };
+
+    db.ref("hospital_notices_v2").push(notice);
+    showToast("Notice Added 📢");
+  }
+
+  function loadNotice() {
+    db.ref("hospital_notices_v2").on("value", snap => {
+      const data = snap.val();
+      const container = document.getElementById("noticeList");
+      container.innerHTML = "";
+
+      for (let key in data) {
+        const n = data[key];
+        let div = document.createElement("div");
+        div.innerText = `${n.text} (${n.date} ${n.time})`;
+        container.appendChild(div);
+      }
+    });
+  }
+
+  function showToast(msg) {
+    const toast = document.createElement("div");
+    toast.innerText = msg;
+    toast.className = "toast";
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+  }
+</script>
+
+</body>
 </html>
