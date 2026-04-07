@@ -15,22 +15,19 @@
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; }
         .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
-        .btn-active:active { transform: scale(0.95); }
-        /* Auto-complete suggestions style */
-        .suggestion-box { position: absolute; background: white; width: 100%; z-index: 100; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-height: 150px; overflow-y: auto; }
-        .suggestion-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 14px; }
-        .suggestion-item:hover { background: #f0f7ff; color: #2563eb; }
+        .btn-active:active { transform: scale(0.95); transition: 0.1s; }
+        .download-fab { position: fixed; bottom: 80px; right: 20px; z-index: 100; }
     </style>
 </head>
 <body>
 
-<div class="max-w-md mx-auto min-h-screen flex flex-col bg-white relative shadow-2xl">
+<div class="max-w-md mx-auto min-h-screen flex flex-col bg-white relative shadow-2xl overflow-x-hidden">
     
     <header class="gradient-header text-white p-6 rounded-b-[40px] shadow-lg sticky top-0 z-50">
         <div class="flex justify-between items-center mb-4">
             <div>
                 <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">Sanskardham</h1>
-                <p id="userLabel" class="text-[10px] font-bold text-blue-200 uppercase mt-1">Vision v2.0</p>
+                <p class="text-[10px] font-bold text-blue-200 uppercase mt-1">Vision v2.0</p>
             </div>
             <div class="flex space-x-2">
                 <button onclick="toggleShift()" id="shiftIco" class="bg-white/20 p-2 rounded-2xl text-xl">☀️</button>
@@ -53,48 +50,48 @@
         <button onclick="login()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold shadow-xl btn-active uppercase tracking-widest">Login</button>
     </div>
 
-    <div id="homePage" class="hidden p-5 space-y-6 flex-grow">
+    <div id="homePage" class="hidden p-5 space-y-6 flex-grow pb-32">
         <div class="relative">
             <input type="text" id="searchBar" onkeyup="doSearch()" placeholder="તમારી ડ્યુટી શોધો..." class="w-full p-4 pl-12 rounded-2xl bg-white shadow-sm border border-gray-100 outline-none focus:ring-2 focus:ring-blue-500 font-bold">
             <span class="absolute left-4 top-4 text-xl">🔍</span>
         </div>
         <div id="searchBox" class="hidden p-5 rounded-3xl border-2 font-bold text-center"></div>
 
-        <button id="pdfBtn" onclick="generatePDF()" class="hidden w-full bg-green-600 text-white p-4 rounded-2xl font-bold text-sm shadow-lg btn-active">
-            📥 આજની ડ્યુટી PDF ડાઉનલોડ કરો
-        </button>
-
         <div class="flex justify-between items-center px-1">
             <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Departments</h3>
             <button id="addDeptBtn" onclick="addNewDept()" class="hidden text-blue-600 font-bold text-[10px] uppercase">+ Add Dept</button>
         </div>
-        <div id="deptGrid" class="grid grid-cols-2 gap-4 pb-20"></div>
+        <div id="deptGrid" class="grid grid-cols-2 gap-4"></div>
     </div>
 
-    <div id="listPage" class="hidden p-5 flex-grow">
-        <button onclick="goHome()" class="text-blue-600 font-bold text-xs mb-6 flex items-center">⬅ BACK TO HOME</button>
+    <div id="listPage" class="hidden p-5 flex-grow pb-32">
+        <button onclick="goHome()" class="text-blue-600 font-bold text-xs mb-6 flex items-center uppercase tracking-tighter">⬅ Back to Home</button>
         <div class="text-center mb-8">
             <h2 id="lTitle" class="text-2xl font-black text-gray-800 uppercase italic"></h2>
             <p id="lSub" class="text-[10px] font-bold text-gray-400 uppercase tracking-[3px]"></p>
         </div>
-        <div id="lBody" class="space-y-4 pb-20"></div>
+        <div id="lBody" class="space-y-4"></div>
     </div>
 
-    <div id="editModal" class="hidden fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-6">
-        <div class="bg-white w-full rounded-[30px] p-6 relative">
-            <h3 class="font-black text-gray-800 mb-4">Edit Slot</h3>
-            <div class="relative">
-                <input type="text" id="staffInput" placeholder="સ્ટાફનું નામ લખો..." class="w-full p-4 bg-gray-100 rounded-xl outline-none border-2 border-transparent focus:border-blue-500" onkeyup="showSuggestions(this.value)">
-                <div id="suggestionBox" class="suggestion-box hidden"></div>
-            </div>
+    <div id="downloadAction" class="hidden download-fab flex flex-col items-center">
+        <span class="bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full mb-2 shadow-lg">ડ્યુટી લિસ્ટ ડાઉનલોડ</span>
+        <button onclick="generateFullPDF()" class="bg-blue-700 text-white p-4 rounded-full shadow-2xl btn-active border-4 border-white">
+            <span class="text-2xl">📥</span>
+        </button>
+    </div>
+
+    <div id="editModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full rounded-[30px] p-6 relative shadow-2xl">
+            <h3 class="font-black text-gray-800 mb-4 uppercase text-sm tracking-widest text-center border-b pb-2">Duty Assign</h3>
+            <input type="text" id="staffInput" placeholder="સ્ટાફનું નામ લખો..." class="w-full p-4 bg-gray-100 rounded-xl outline-none border-2 border-transparent focus:border-blue-500 font-bold text-center">
             <div class="flex space-x-3 mt-6">
-                <button onclick="closeEdit()" class="flex-1 p-4 bg-gray-200 rounded-xl font-bold text-gray-600">Cancel</button>
+                <button onclick="closeEdit()" class="flex-1 p-4 bg-gray-200 rounded-xl font-bold text-gray-500">Cancel</button>
                 <button onclick="saveSlot()" class="flex-1 p-4 gradient-header text-white rounded-xl font-bold">Save</button>
             </div>
         </div>
     </div>
 
-    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/80 backdrop-blur-md border-t p-4 flex justify-center z-50">
+    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 backdrop-blur-md border-t p-4 flex justify-center z-50">
         <p class="text-blue-900 font-black text-[9px] tracking-[4px]">JATIN SOLANKI BY VISION</p>
     </footer>
 </div>
@@ -105,9 +102,6 @@
     const db = firebase.database().ref("hospital_v11_final");
 
     let role = "viewer", shift = "Day", selectedDate = "", appData = {}, currentEditKey = "";
-    
-    // સ્ટાફનું લિસ્ટ (Auto-suggest માટે)
-    const staffList = ["Jatin Solanki", "Hitesh Bhai", "Mehul", "Suresh Kumar", "Pankaj", "Ramesh", "Deepak", "Sunil", "Ankit", "Priya", "Nisha"];
 
     window.onload = () => {
         const today = new Date().toISOString().split('T')[0];
@@ -121,7 +115,7 @@
 
         if(id === "ssgd" && p === "9099020925") role = "admin";
         else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else return alert("Wrong Credentials!");
+        else return alert("Invalid Login!");
 
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('homePage').classList.remove('hidden');
@@ -130,14 +124,14 @@
         
         if(role === 'admin') {
             document.getElementById('addDeptBtn').classList.remove('hidden');
-            document.getElementById('pdfBtn').classList.remove('hidden');
+            document.getElementById('downloadAction').classList.remove('hidden');
         }
         startSync();
     }
 
     function startSync() {
         db.on('value', (s) => {
-            appData = s.val() || { "Depts": ["OPD", "OFF List"] };
+            appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST", "DAYCARE"] };
             renderGrid();
         });
     }
@@ -145,11 +139,11 @@
     function renderGrid() {
         const grid = document.getElementById('deptGrid');
         grid.innerHTML = "";
-        const ds = appData["Depts"] || ["OPD", "OFF List"];
+        const ds = appData["Depts"] || ["OPD", "EMERGENCY", "OFF LIST", "DAYCARE"];
         ds.forEach(d => {
-            grid.innerHTML += `<div onclick="openView('${d}')" class="p-6 bg-white rounded-[30px] border border-gray-100 shadow-sm flex flex-col items-center btn-active">
-                <span class="text-3xl mb-3">${d==='OFF List'?'😴':'🏥'}</span>
-                <span class="font-bold text-gray-700 text-[10px] uppercase">${d}</span>
+            grid.innerHTML += `<div onclick="openView('${d}')" class="p-6 bg-white rounded-[30px] border border-slate-100 shadow-sm flex flex-col items-center btn-active">
+                <span class="text-3xl mb-3">${d.includes('OFF')?'😴':'🏥'}</span>
+                <span class="font-bold text-slate-700 text-[10px] uppercase tracking-tighter">${d}</span>
             </div>`;
         });
     }
@@ -161,33 +155,20 @@
         document.getElementById('lSub').innerText = `${shift} | ${selectedDate}`;
         
         let h = "";
-        for(let i=1; i<=6; i++) {
+        // જો OPD વિભાગ હોય તો 10 સ્લોટ, બાકીનામાં 6
+        const limit = (d.toUpperCase() === 'OPD') ? 10 : 6;
+        
+        for(let i=1; i<=limit; i++) {
+            let slotName = (d.toUpperCase() === 'OPD') ? `OPD ${i}` : `Slot ${i}`;
             let key = `${selectedDate}_${d}_${i}_${shift}`;
             let val = appData[key] || "---";
-            h += `<div class="p-4 bg-gray-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
-                <span class="text-[9px] font-bold text-gray-400 uppercase">Slot ${i}</span>
-                <span onclick="${role==='admin'?`openEdit('${key}')`:''}" class="${role==='admin'?'text-blue-600 font-bold underline':'font-bold'}">${val}</span>
+            
+            h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600 shadow-sm">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${slotName}</span>
+                <span onclick="${role==='admin'?`openEdit('${key}')`:''}" class="${role==='admin'?'text-blue-600 font-bold underline':'font-bold text-slate-800'}">${val}</span>
             </div>`;
         }
         document.getElementById('lBody').innerHTML = h;
-    }
-
-    // Auto-suggest Logic
-    function showSuggestions(val) {
-        const box = document.getElementById('suggestionBox');
-        if(!val) { box.classList.add('hidden'); return; }
-        const filtered = staffList.filter(s => s.toLowerCase().includes(val.toLowerCase()));
-        if(filtered.length > 0) {
-            box.innerHTML = filtered.map(s => `<div class="suggestion-item" onclick="selectStaff('${s}')">${s}</div>`).join('');
-            box.classList.remove('hidden');
-        } else {
-            box.classList.add('hidden');
-        }
-    }
-
-    function selectStaff(name) {
-        document.getElementById('staffInput').value = name;
-        document.getElementById('suggestionBox').classList.add('hidden');
     }
 
     function openEdit(key) {
@@ -205,37 +186,48 @@
         openView(currentEditKey.split('_')[1]);
     }
 
-    // PDF Generation
-    function generatePDF() {
+    // PDF GENERATION (બધા જ દિવસો માટે)
+    function generateFullPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        doc.setFontSize(18);
-        doc.text("SANSKAR DHAM HOSPITAL - DUTY CHART", 14, 20);
-        doc.setFontSize(11);
-        doc.text(`DATE: ${selectedDate} | SHIFT: ${shift}`, 14, 30);
-
-        const rows = [];
-        const ds = appData["Depts"] || [];
+        doc.setFontSize(16);
+        doc.text("SANSKAR DHAM HOSPITAL - MASTER DUTY LIST", 14, 20);
         
-        ds.forEach(d => {
-            for(let i=1; i<=6; i++) {
-                let val = appData[`${selectedDate}_${d}_${i}_${shift}`];
-                if(val && val !== "---") {
-                    rows.push([d, `Slot ${i}`, val]);
+        const rows = [];
+        // બધી કી (Keys) માંથી ડેટા ફિલ્ટર કરવો
+        Object.keys(appData).forEach(key => {
+            // કી ફોર્મેટ: Date_Dept_Index_Shift (દા.ત. 2026-04-07_OPD_1_Day)
+            if(key.includes('_')) {
+                const parts = key.split('_');
+                if(parts.length === 4) {
+                    const dDate = parts[0];
+                    const dDept = parts[1];
+                    const dIdx = parts[2];
+                    const dShift = parts[3];
+                    const dStaff = appData[key];
+                    
+                    if(dStaff && dStaff !== "---") {
+                        let label = (dDept.toUpperCase() === 'OPD') ? `OPD ${dIdx}` : `Slot ${dIdx}`;
+                        rows.push([dDate, dDept, label, dShift, dStaff]);
+                    }
                 }
             }
         });
 
+        // તારીખ મુજબ સોર્ટિંગ
+        rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
         doc.autoTable({
-            startY: 40,
-            head: [['Department', 'Slot', 'Staff Name']],
+            startY: 30,
+            head: [['Date', 'Department', 'Position', 'Shift', 'Staff Name']],
             body: rows,
             theme: 'grid',
-            headStyles: { fillColor: [30, 58, 138] }
+            headStyles: { fillColor: [30, 58, 138], fontSize: 9 },
+            styles: { fontSize: 8 }
         });
 
-        doc.save(`Duty_Report_${selectedDate}.pdf`);
+        doc.save(`Full_Hospital_Duty_List.pdf`);
     }
 
     function toggleShift() {
@@ -266,11 +258,19 @@
         }
         res.classList.remove('hidden');
         if(found) {
-            res.innerHTML = found === "OFF List" ? "😴 આજે તમારી રજા (OFF) છે." : `✅ તમારી ડ્યુટી ${found} માં છે.`;
-            res.className = "p-5 rounded-3xl border-2 bg-green-50 border-green-200 text-green-700 font-bold text-center";
+            res.innerHTML = found.toUpperCase().includes('OFF') ? "😴 આજે તમારી રજા (OFF) છે." : `✅ તમારી ડ્યુટી ${found} માં છે.`;
+            res.className = "p-5 rounded-3xl border-2 bg-green-50 border-green-200 text-green-700 font-bold text-center shadow-lg";
         } else {
             res.innerHTML = "⚠️ નામ લિસ્ટમાં નથી.";
-            res.className = "p-5 rounded-3xl border-2 bg-red-50 border-red-200 text-red-700 font-bold text-center";
+            res.className = "p-5 rounded-3xl border-2 bg-red-50 border-red-200 text-red-700 font-bold text-center shadow-lg";
+        }
+    }
+
+    function addNewDept() {
+        const n = prompt("નવા વિભાગનું નામ લખો:");
+        if(n) {
+            let ds = appData["Depts"] || [];
+            if(!ds.includes(n.toUpperCase())) { ds.push(n.toUpperCase()); db.update({ "Depts": ds }); }
         }
     }
 </script>
