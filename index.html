@@ -6,28 +6,38 @@
     <title>Sanskar Dham Hospital | Vision</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #0056b3; --admin-color: #d32f2f; --bg: #f0f4f8; }
+        :root { --primary: #0056b3; --admin-red: #d32f2f; --bg: #f4f7f9; }
         body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; color: #333; }
         
-        .header { background: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border-bottom: 4px solid var(--primary); position: sticky; top: 0; z-index: 100; }
-        .header h1 { margin: 0; color: var(--primary); font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        /* Header Branding */
+        .header { background: white; padding: 25px; text-align: center; box-shadow: 0 2px 15px rgba(0,0,0,0.08); border-bottom: 5px solid var(--primary); }
+        .header h1 { margin: 0; color: var(--primary); font-size: 22px; text-transform: uppercase; letter-spacing: 1px; }
 
-        .container { padding: 20px; max-width: 450px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        .container { padding: 20px; max-width: 420px; margin: auto; display: flex; align-items: center; justify-content: center; min-height: 70vh; }
         
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; outline: none; font-size: 16px; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .btn-back { background: #6c757d; margin-top: 15px; width: auto; padding: 8px 20px; font-size: 14px; }
+        /* Professional Login Card */
+        .card { background: white; padding: 40px 30px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; width: 100%; }
+        .card h2 { margin-bottom: 30px; font-weight: 500; color: #444; }
+        
+        input { width: 100%; padding: 16px; margin-bottom: 15px; border: 2px solid #eee; border-radius: 15px; box-sizing: border-box; outline: none; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); background: #f0f7ff; }
 
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .menu-item { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; font-weight: 600; color: var(--primary); border: 1px solid #eee; }
-        
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; background: var(--primary); color: white; font-size: 18px; font-weight: 600; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,86,179,0.3); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,86,179,0.4); }
+
+        /* Dashboard Styles */
         .section { display: none; }
-        .active { display: block; animation: fadeIn 0.4s; }
-        .footer { text-align: center; padding: 30px 20px; font-size: 13px; color: #888; }
+        .active { display: block; animation: fadeIn 0.5s ease; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .menu-item { background: #fff; padding: 25px 10px; border-radius: 18px; border: 1px solid #eee; cursor: pointer; font-weight: 600; color: var(--primary); transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+        .menu-item:active { transform: scale(0.95); background: var(--primary); color: white; }
+
+        .btn-back { background: #6c757d; margin-top: 20px; width: auto; padding: 10px 25px; font-size: 14px; }
+
+        .footer { text-align: center; padding: 20px; font-size: 13px; color: #888; margin-top: auto; }
         .footer b { color: var(--primary); }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -39,49 +49,49 @@
     <div class="container">
         
         <div id="loginSection" class="section active card">
-            <h2 style="margin-top:0;">Staff Portal</h2>
-            <p style="color:#777; font-size:14px;">તમારો ID અને પાસવર્ડ નાખો</p>
-            <input type="text" id="staffID" placeholder="User ID">
-            <input type="password" id="staffPass" placeholder="Password">
-            <button class="btn" onclick="handleLogin()">Login</button>
+            <h2>Staff Login</h2>
+            <input type="text" id="loginID" placeholder="User ID (ssgd)">
+            <input type="password" id="loginPass" placeholder="Password">
+            <button class="btn" onclick="handleLogin()">Login Now</button>
         </div>
 
         <div id="homeSection" class="section card">
-            <h3 id="welcomeMsg">Welcome</h3>
+            <h3 id="welcomeTitle">Welcome</h3>
             <div class="menu-grid">
                 <div class="menu-item" onclick="openSection('dutySection')">📋<br>ડ્યુટી લિસ્ટ</div>
                 <div class="menu-item" onclick="openSection('noticeSection')">📢<br>સૂચનાઓ</div>
-                <div id="adminMenuBtn" class="menu-item" style="display:none; color:var(--admin-color);" onclick="openSection('adminPanel')">⚙️<br>એડમિન ફોર્મ</div>
+                <div id="adminBtn" class="menu-item" style="display:none; color:var(--admin-red);" onclick="openSection('adminPanel')">⚙️<br>એડમિન પેનલ</div>
                 <div class="menu-item" onclick="location.reload()">🚪<br>Logout</div>
             </div>
         </div>
 
         <div id="dutySection" class="section card">
-            <h3>📋 ડ્યુટી લિસ્ટ શોધો</h3>
-            <input type="text" placeholder="તમારું નામ લખો..." onkeyup="alert('Firebase કનેક્શન બાકી છે')">
-            <button class="btn btn-back" onclick="openSection('homeSection')">⬅️ પાછા જાઓ</button>
+            <h3>📋 ડ્યુટી લિસ્ટ</h3>
+            <input type="text" placeholder="તમારું નામ શોધો...">
+            <div id="results"></div>
+            <button class="btn btn-back" onclick="openSection('homeSection')">⬅️ Back</button>
         </div>
 
-        <div id="adminPanel" class="section card" style="border-top: 5px solid var(--admin-color);">
-            <h3 style="color:var(--admin-color);">⚙️ Admin Control</h3>
+        <div id="adminPanel" class="section card" style="border-top: 5px solid var(--admin-red);">
+            <h3 style="color:var(--admin-red);">⚙️ Admin Access</h3>
             <input type="text" placeholder="સ્ટાફનું નામ">
-            <input type="text" placeholder="વિભાગ (ICU/OPD)">
-            <input type="text" placeholder="સમય (Shift)">
-            <button class="btn" style="background:var(--admin-color)">Save Data</button>
-            <button class="btn btn-back" onclick="openSection('homeSection')">⬅️ પાછા જાઓ</button>
+            <input type="text" placeholder="વિભાગ">
+            <input type="text" placeholder="શિફ્ટ સમય">
+            <button class="btn" style="background:var(--admin-red)">ડેટા સેવ કરો</button>
+            <button class="btn btn-back" onclick="openSection('homeSection')">⬅️ Back</button>
         </div>
 
         <div id="noticeSection" class="section card">
             <h3>📢 હોસ્પિટલ સૂચનાઓ</h3>
-            <p style="color:#999;">હાલ કોઈ નવી નોટિસ નથી.</p>
-            <button class="btn btn-back" onclick="openSection('homeSection')">⬅️ પાછા જાઓ</button>
+            <p style="color:#999; font-size:14px;">હાલ કોઈ નવી સૂચના નથી.</p>
+            <button class="btn btn-back" onclick="openSection('homeSection')">⬅️ Back</button>
         </div>
 
     </div>
 
     <div class="footer">
         Created by <b>Jatin Solanki</b><br>
-        <div style="font-weight:600; margin-top:5px; color:#555;">VISION VERSION 1.0</div>
+        <div style="font-weight:600; margin-top:5px; color:#555; letter-spacing:1px;">VISION VERSION 1.0</div>
     </div>
 
     <script>
@@ -91,23 +101,23 @@
         }
 
         function handleLogin() {
-            const id = document.getElementById('staffID').value;
-            const pass = document.getElementById('staffPass').value;
+            const id = document.getElementById('loginID').value;
+            const pass = document.getElementById('loginPass').value;
 
-            // ૧. સ્ટાફ લોગિન ચેક
+            // ૧. સ્ટાફ લોગિન (પાસવર્ડ: 9712284024)
             if(id === "ssgd" && pass === "9712284024") {
-                document.getElementById('welcomeMsg').innerText = "નમસ્તે, Staff 👋";
-                document.getElementById('adminMenuBtn').style.display = "none"; // એડમિન બટન છુપાવો
+                document.getElementById('welcomeTitle').innerHTML = "નમસ્તે, Staff 👋";
+                document.getElementById('adminBtn').style.display = "none"; // એડમિન છુપાવો
                 openSection('homeSection');
             } 
-            // ૨. એડમિન લોગિન ચેક
+            // ૨. એડમિન લોગિન (પાસવર્ડ: 9099020925)
             else if(id === "ssgd" && pass === "9099020925") {
-                document.getElementById('welcomeMsg').innerText = "Welcome, Admin ⚙️";
-                document.getElementById('adminMenuBtn').style.display = "block"; // એડમિન બટન બતાવો
+                document.getElementById('welcomeTitle').innerHTML = "Admin Dashboard ⚙️";
+                document.getElementById('adminBtn').style.display = "block"; // એડમિન બતાવો
                 openSection('homeSection');
             } 
             else {
-                alert("ખોટો ID અથવા Password!");
+                alert("ખોટો ID અથવા પાસવર્ડ!");
             }
         }
     </script>
