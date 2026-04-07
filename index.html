@@ -1,290 +1,137 @@
-<!DOCTYPE html>
-<html lang="gu">
+<!DOCTYPE html><html lang="gu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanskardham Hospital | Vision v2.0</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Duty Pro</title><script src="https://cdn.tailwindcss.com"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><style>
+body { font-family: sans-serif; background:#f1f5f9; }
+.card { background:white; padding:15px; border-radius:15px; margin-top:10px; }
+</style></head><body><div class="max-w-md mx-auto p-4"><!-- LOGIN --><div id="loginPage">
+<h2 class="text-xl font-bold mb-3 text-center">🏥 Staff Login</h2>
+<input id="id" placeholder="User ID" class="w-full p-3 border mb-2 rounded">
+<input id="pass" type="password" placeholder="Password" class="w-full p-3 border mb-2 rounded">
+<button onclick="login()" class="w-full bg-blue-600 text-white p-3 rounded">Login</button>
+</div><!-- APP --><div id="app" class="hidden"><!-- HEADER --><div class="card text-center">
+<input type="date" id="date" class="p-2 border rounded" onchange="changeDate()">
+<button onclick="toggleShift()" class="ml-2 bg-gray-200 px-3 py-1 rounded">Shift</button>
+<p id="shiftText" class="mt-2 font-bold"></p>
+</div><!-- SEARCH --><div class="card">
+<input id="search" onkeyup="search()" placeholder="Search name..." class="w-full p-3 border rounded">
+</div><!-- ADMIN MULTI DATE --><div id="multiBox" class="card hidden">
+<input id="multi" placeholder="2026-04-07,2026-04-08" class="w-full p-3 border rounded">
+</div><!-- DUTY LIST --><div class="card">
+<h3 class="font-bold">Duty</h3>
+<div id="list"></div>
+</div></div></div><script>
+const firebaseConfig = {
+ databaseURL:"https://jatin-9a897-default-rtdb.firebaseio.com/"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref("hospital_v11_final");
 
-    <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; touch-action: manipulation; }
-        .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
-        .btn-active:active { transform: scale(0.95); transition: 0.1s; }
-        .main-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; }
-        .main-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .download-fab { position: fixed; bottom: 85px; right: 20px; z-index: 100; }
-        .modal-anim { animation: zoomIn 0.2s ease-out; }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-    </style>
-</head>
-<body>
+let role="", shift="Day", date="", data={};
 
-<div class="max-w-md mx-auto min-h-screen flex flex-col bg-white relative shadow-2xl overflow-x-hidden">
-    
-    <header class="gradient-header text-white p-6 rounded-b-[40px] shadow-lg sticky top-0 z-50">
-        <div class="flex justify-between items-center mb-2">
-            <div>
-                <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">Sanskardham</h1>
-                <p class="text-[10px] font-bold text-blue-200 uppercase mt-1 tracking-widest">Vision v2.0</p>
-            </div>
-            <div id="roleBadge" class="hidden bg-white/20 px-3 py-1 rounded-xl text-[10px] font-bold uppercase tracking-widest">Guest</div>
-        </div>
-        <div id="dateArea" class="hidden flex items-center bg-black/10 rounded-2xl px-4 py-2 mt-2">
-            <span class="text-xs mr-2">📅</span>
-            <input type="date" id="dateInput" onchange="refreshAll()" class="bg-transparent text-white font-bold outline-none text-sm w-full">
-            <button onclick="toggleShift()" id="shiftIco" class="ml-2 bg-white/20 p-1 rounded-lg text-lg">☀️</button>
-        </div>
-    </header>
+window.onload=()=>{
+ let d=new Date().toISOString().split('T')[0];
+ document.getElementById("date").value=d;
+ date=d;
+};
 
-    <div id="loginPage" class="p-8 flex-grow flex flex-col justify-center space-y-5">
-        <div class="text-center mb-5">
-            <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-4xl">🏥</span>
-            </div>
-            <h2 class="text-2xl font-black text-gray-800 tracking-tight">Staff Portal</h2>
-        </div>
-        <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-blue-600 text-center font-bold">
-        <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none focus:ring-2 focus:ring-blue-600 text-center font-bold">
-        <button onclick="login()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold shadow-xl btn-active uppercase">Login</button>
-    </div>
+// LOGIN
+function login(){
+ let i=id.value, p=pass.value;
 
-    <div id="mainMenu" class="hidden p-6 space-y-6 flex-grow">
-        <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[3px] mb-4">Main Services</h3>
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="showDutySection()" class="main-card p-6 bg-white rounded-[35px] flex flex-col items-center btn-active cursor-pointer border-blue-100 border-2">
-                <span class="text-4xl mb-3">📅</span>
-                <span class="font-black text-slate-700 text-xs uppercase text-center">Duty List</span>
-            </div>
-            <div class="main-card p-6 bg-gray-50 rounded-[35px] flex flex-col items-center opacity-50">
-                <span class="text-4xl mb-3">🎨</span>
-                <span class="font-bold text-slate-400 text-[10px] uppercase text-center">Poster Maker</span>
-            </div>
-            <div class="main-card p-6 bg-gray-50 rounded-[35px] flex flex-col items-center opacity-50">
-                <span class="text-4xl mb-3">📢</span>
-                <span class="font-bold text-slate-400 text-[10px] uppercase text-center">Notice Board</span>
-            </div>
-        </div>
-    </div>
+ if(i==="ssgd" && p==="9099020925") role="admin";
+ else if(i==="ssgd" && p==="9712284024") role="staff";
+ else return alert("Wrong");
 
-    <div id="dutySection" class="hidden p-5 space-y-6 flex-grow pb-32">
-        <button onclick="backToMenu()" class="text-blue-600 font-bold text-xs flex items-center uppercase tracking-tighter">⬅ Back to Menu</button>
-        
-        <div class="relative">
-            <input type="text" id="searchBar" onkeyup="doSearch()" placeholder="તમારી ડ્યુટી શોધો..." class="w-full p-4 pl-12 rounded-2xl bg-white shadow-sm border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 font-bold">
-            <span class="absolute left-4 top-4 text-xl">🔍</span>
-        </div>
-        <div id="searchBox" class="hidden p-5 rounded-3xl border-2 font-bold text-center shadow-lg"></div>
+ loginPage.style.display="none";
+ app.style.display="block";
 
-        <div class="flex justify-between items-center px-1">
-            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Departments</h3>
-            <button id="addDeptBtn" onclick="openDeptModal()" class="hidden text-blue-600 font-bold text-[10px] uppercase bg-blue-50 px-3 py-1 rounded-full">+ Add Dept</button>
-        </div>
-        <div id="deptGrid" class="grid grid-cols-2 gap-4"></div>
-    </div>
+ if(role==="admin") multiBox.style.display="block";
 
-    <div id="listPage" class="hidden p-5 flex-grow pb-32">
-        <button onclick="backToDuty()" class="text-blue-600 font-bold text-xs mb-6 flex items-center uppercase tracking-tighter">⬅ Back to Duty List</button>
-        <div class="text-center mb-8">
-            <h2 id="lTitle" class="text-3xl font-black text-gray-800 uppercase italic"></h2>
-            <p id="lSub" class="text-[10px] font-bold text-gray-400 uppercase tracking-[4px] mt-1"></p>
-        </div>
-        <div id="lBody" class="space-y-3"></div>
-    </div>
+ load();
+}
 
-    <div id="downloadAction" class="hidden download-fab flex flex-col items-center">
-        <span class="bg-blue-600 text-white text-[9px] font-bold px-3 py-1 rounded-full mb-2 shadow-lg">ડ્યુટી લિસ્ટ ડાઉનલોડ</span>
-        <button onclick="generateFullPDF()" class="bg-blue-700 text-white p-4 rounded-full shadow-2xl btn-active border-4 border-white animate-bounce">
-            <span class="text-2xl">📥</span>
-        </button>
-    </div>
+// LOAD DATA
+function load(){
+ db.on("value",s=>{
+   data=s.val()||{};
+   render();
+ });
+}
 
-    <div id="editModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-6 backdrop-blur-sm">
-        <div class="bg-white w-full rounded-[40px] p-8 shadow-2xl modal-anim">
-            <h3 class="font-black text-gray-800 mb-6 text-center uppercase text-sm tracking-widest border-b pb-2">Assign Staff</h3>
-            <input type="text" id="staffInput" placeholder="નામ લખો..." class="w-full p-5 bg-gray-100 rounded-3xl outline-none font-black text-center text-lg">
-            <div class="flex space-x-3 mt-8">
-                <button onclick="closeEdit()" class="flex-1 p-5 bg-gray-100 rounded-3xl font-bold text-gray-400 text-xs">CANCEL</button>
-                <button onclick="saveSlot()" class="flex-1 p-5 gradient-header text-white rounded-3xl font-bold text-xs">SAVE</button>
-            </div>
-        </div>
-    </div>
+// RENDER
+function render(){
+ let h="";
+ for(let i=1;i<=6;i++){
+   let key=`${date}_GEN_${i}_${shift}`;
+   let val=data[key]||"---";
 
-    <div id="deptModal" class="hidden fixed inset-0 bg-black/60 z-[300] flex items-center justify-center p-6 backdrop-blur-sm">
-        <div class="bg-white w-full rounded-[40px] p-8 shadow-2xl modal-anim">
-            <h3 class="font-black text-gray-800 mb-6 text-center uppercase text-sm tracking-widest border-b pb-2">New Department</h3>
-            <input type="text" id="newDeptName" placeholder="વિભાગનું નામ..." class="w-full p-5 bg-gray-100 rounded-3xl outline-none font-black text-center text-lg uppercase">
-            <div class="flex space-x-3 mt-8">
-                <button onclick="closeDeptModal()" class="flex-1 p-5 bg-gray-100 rounded-3xl font-bold text-gray-400 text-xs">CANCEL</button>
-                <button onclick="confirmAddDept()" class="flex-1 p-5 bg-blue-600 text-white rounded-3xl font-bold text-xs">ADD</button>
-            </div>
-        </div>
-    </div>
+   h+=`
+   <div class="flex justify-between p-2 border-b">
+   <span>Slot ${i}</span>
+   <span>
+     <span onclick="${role==='admin'?`edit('${key}')`:''}" class="font-bold">${val}</span>
+     ${role==="admin" && val!=="---"?`<button onclick="del('${key}')">❌</button>`:""}
+   </span>
+   </div>`;
+ }
+ list.innerHTML=h;
+}
 
-    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 backdrop-blur-md border-t p-4 flex justify-center z-50">
-        <p class="text-blue-900 font-black text-[9px] tracking-[4px] opacity-40">JATIN SOLANKI BY VISION</p>
-    </footer>
-</div>
+// EDIT
+let current="";
+function edit(k){
+ current=k;
+ let v=data[k]||"";
+ let n=prompt("Name",v);
+ if(n===null) return;
 
-<script>
-    const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database().ref("hospital_v11_final");
+ let multi=document.getElementById("multi").value;
 
-    let role = "viewer", shift = "Day", selectedDate = "", appData = {}, currentEditKey = "";
+ if(role==="admin" && multi){
+   let dates=multi.split(",");
+   let up={};
+   dates.forEach(d=>{
+     let p=k.split("_");
+     up[`${d.trim()}_${p[1]}_${p[2]}_${p[3]}`]=n;
+   });
+   db.update(up);
+ } else {
+   db.update({[k]:n});
+ }
+}
 
-    window.onload = () => {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('dateInput').value = today;
-        selectedDate = today;
-    };
+// DELETE
+function del(k){
+ if(confirm("Delete?")){
+  db.update({[k]:"---"});
+ }
+}
 
-    function login() {
-        const id = document.getElementById('loginID').value.trim();
-        const p = document.getElementById('loginPass').value;
-        if(id === "ssgd" && p === "9099020925") role = "admin";
-        else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else return alert("Invalid Login!");
+// DATE CHANGE
+function changeDate(){
+ date=document.getElementById("date").value;
+ render();
+}
 
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('mainMenu').classList.remove('hidden');
-        document.getElementById('roleBadge').classList.remove('hidden');
-        document.getElementById('roleBadge').innerText = role;
-        startSync();
-    }
+// SHIFT
+function toggleShift(){
+ shift=(shift==="Day")?"Night":"Day";
+ shiftText.innerText=shift;
+ render();
+}
 
-    function startSync() {
-        db.on('value', (s) => {
-            appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST"] };
-            renderGrid();
-        });
-    }
-
-    // Navigation Functions
-    function showDutySection() {
-        document.getElementById('mainMenu').classList.add('hidden');
-        document.getElementById('dutySection').classList.remove('hidden');
-        document.getElementById('dateArea').classList.remove('hidden');
-        if(role === 'admin') document.getElementById('downloadAction').classList.remove('hidden');
-    }
-
-    function backToMenu() {
-        document.getElementById('dutySection').classList.add('hidden');
-        document.getElementById('mainMenu').classList.remove('hidden');
-        document.getElementById('dateArea').classList.add('hidden');
-        document.getElementById('downloadAction').classList.add('hidden');
-    }
-
-    function backToDuty() {
-        document.getElementById('listPage').classList.add('hidden');
-        document.getElementById('dutySection').classList.remove('hidden');
-        if(role === 'admin') document.getElementById('downloadAction').classList.remove('hidden');
-    }
-
-    // ડ્યુટી લોજિક ફંક્શન્સ (જૂના સેમ રહેશે)
-    function renderGrid() {
-        const grid = document.getElementById('deptGrid');
-        grid.innerHTML = "";
-        const ds = appData["Depts"] || ["OPD", "EMERGENCY", "OFF LIST"];
-        ds.forEach(d => {
-            grid.innerHTML += `<div onclick="openView('${d}')" class="p-6 bg-white rounded-[35px] border border-slate-100 shadow-sm flex flex-col items-center btn-active">
-                <span class="text-3xl mb-2">${d.toUpperCase().includes('OFF')?'😴':'🏥'}</span>
-                <span class="font-bold text-slate-700 text-[10px] uppercase tracking-tighter">${d}</span>
-            </div>`;
-        });
-    }
-
-    function openView(d) {
-        document.getElementById('dutySection').classList.add('hidden');
-        document.getElementById('downloadAction').classList.add('hidden');
-        document.getElementById('listPage').classList.remove('hidden');
-        document.getElementById('lTitle').innerText = d;
-        document.getElementById('lSub').innerText = `${shift} | ${selectedDate}`;
-        
-        let h = "";
-        const limit = (d.toUpperCase() === 'OPD') ? 10 : 6;
-        for(let i=1; i<=limit; i++) {
-            let slotName = (d.toUpperCase() === 'OPD') ? `OPD ${i}` : `Slot ${i}`;
-            let key = `${selectedDate}_${d}_${i}_${shift}`;
-            let val = appData[key] || "---";
-            h += `<div class="p-5 bg-slate-50 rounded-[25px] flex justify-between items-center border-l-4 border-blue-600 shadow-sm">
-                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${slotName}</span>
-                <span onclick="${role==='admin'?`openEdit('${key}')`:''}" class="${role==='admin'?'text-blue-600 font-bold underline italic':'font-bold text-slate-800'}">${val}</span>
-            </div>`;
-        }
-        document.getElementById('lBody').innerHTML = h;
-    }
-
-    function openEdit(key) {
-        currentEditKey = key;
-        document.getElementById('staffInput').value = (appData[key] === "---") ? "" : (appData[key] || "");
-        document.getElementById('editModal').classList.remove('hidden');
-    }
-    function closeEdit() { document.getElementById('editModal').classList.add('hidden'); }
-    function saveSlot() {
-        db.update({ [currentEditKey]: document.getElementById('staffInput').value.trim() || "---" });
-        closeEdit();
-        openView(currentEditKey.split('_')[1]);
-    }
-
-    function openDeptModal() { document.getElementById('deptModal').classList.remove('hidden'); }
-    function closeDeptModal() { document.getElementById('deptModal').classList.add('hidden'); }
-    function confirmAddDept() {
-        const n = document.getElementById('newDeptName').value.trim().toUpperCase();
-        if(n) {
-            let ds = appData["Depts"] || [];
-            if(!ds.includes(n)) { ds.push(n); db.update({ "Depts": ds }); closeDeptModal(); }
-        }
-    }
-
-    function generateFullPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.text("SANSKAR DHAM HOSPITAL - DUTY LIST", 14, 20);
-        const rows = [];
-        Object.keys(appData).forEach(key => {
-            const parts = key.split('_');
-            if(parts.length === 4 && appData[key] !== "---") {
-                rows.push([parts[0], parts[1], parts[2], parts[3], appData[key]]);
-            }
-        });
-        doc.autoTable({ startY: 30, head: [['Date', 'Dept', 'Pos', 'Shift', 'Name']], body: rows });
-        doc.save(`Duty_Report.pdf`);
-    }
-
-    function toggleShift() {
-        shift = (shift === "Day") ? "Night" : "Day";
-        document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙";
-        if(!document.getElementById('listPage').classList.contains('hidden')) openView(document.getElementById('lTitle').innerText);
-    }
-
-    function refreshAll() {
-        selectedDate = document.getElementById('dateInput').value;
-        if(!document.getElementById('listPage').classList.contains('hidden')) openView(document.getElementById('lTitle').innerText);
-    }
-
-    function goHome() { location.reload(); }
-
-    function doSearch() {
-        const q = document.getElementById('searchBar').value.toLowerCase();
-        const res = document.getElementById('searchBox');
-        if(!q) { res.classList.add('hidden'); return; }
-        let found = "";
-        for(let k in appData) {
-            if(k.startsWith(selectedDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) {
-                found = k.split('_')[1]; break;
-            }
-        }
-        res.classList.remove('hidden');
-        res.innerHTML = found ? `✅ તમારી ડ્યુટી ${found} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
-        res.className = found ? "p-5 rounded-3xl border-2 bg-green-50 border-green-200 text-green-700 font-bold text-center" : "p-5 rounded-3xl border-2 bg-red-50 border-red-200 text-red-700 font-bold text-center";
-    }
-</script>
-</body>
+// SEARCH
+function search(){
+ let q=document.getElementById("search").value.toLowerCase();
+ let res="";
+ for(let k in data){
+   if(data[k].toLowerCase().includes(q)){
+     res+=data[k]+"<br>";
+   }
+ }
+ list.innerHTML=res||"Not found";
+}
+</script></body>
 </html>
