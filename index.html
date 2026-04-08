@@ -1,214 +1,205 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="gu">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SANSKARDHAM VISION</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-<style>
-body { font-family: 'Poppins', sans-serif; }
-.card {
-  border-radius: 20px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-}
-.toast {
- position: fixed;
- bottom:20px;
- left:50%;
- transform:translateX(-50%);
- background:#111;
- color:#fff;
- padding:10px 20px;
- border-radius:12px;
- display:none;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sanskardham Final App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f1f5f9; touch-action: manipulation; }
+        .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .btn-active:active { transform: scale(0.95); transition: 0.1s; }
+        .notify-anim { animation: fadeInDown 0.5s ease; }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        /* નવી પટ્ટી માટે સાદી સ્ટાઇલ */
+        .simple-notice { background: #fee2e2; color: #b91c1c; font-size: 12px; font-weight: bold; border-radius: 10px; padding: 5px; margin-bottom: 10px; }
+    </style>
 </head>
+<body>
 
-<body class="bg-gray-100">
-
-<!-- LOGIN -->
-<div id="loginPage" class="h-screen flex items-center justify-center bg-white">
-  <div class="text-center">
-    <div class="text-5xl mb-4">🏥</div>
-    <h1 class="text-2xl font-bold italic uppercase text-blue-600 mb-6">
-      SANSKARDHAM VISION
-    </h1>
-
-    <input id="uid" placeholder="User ID" class="border p-2 rounded-xl w-64 mb-3"><br>
-    <input id="pass" type="password" placeholder="Password" class="border p-2 rounded-xl w-64 mb-4"><br>
-
-    <button onclick="login()" class="bg-blue-600 text-white px-6 py-2 rounded-xl">
-      Login
-    </button>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="app" class="hidden">
-
-  <!-- HEADER -->
-  <div class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-5 rounded-b-[40px] shadow-lg">
+<div class="max-w-md mx-auto min-h-screen flex flex-col shadow-2xl bg-white relative overflow-hidden">
     
-    <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold">SANSKARDHAM</h1>
-
-      <button onclick="toggleShift()" id="shiftBtn"
-        class="bg-white/20 px-4 py-2 rounded-full">
-        🌞 Day
-      </button>
+    <div id="popup" class="hidden fixed top-5 left-5 right-5 z-[100] notify-anim">
+        <div class="bg-blue-600 text-white p-5 rounded-3xl shadow-2xl border-2 border-white">
+            <div class="flex justify-between items-start">
+                <div class="flex items-center">
+                    <span class="text-3xl mr-3">📢</span>
+                    <div>
+                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Duty Update</p>
+                        <p id="popMsg" class="font-bold text-sm leading-tight"></p>
+                    </div>
+                </div>
+                <button onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')" class="text-2xl font-bold leading-none">&times;</button>
+            </div>
+        </div>
     </div>
 
-    <div class="mt-3 flex justify-between items-center">
-      <div id="userText" class="text-sm opacity-90"></div>
+    <header class="gradient-header text-white p-6 rounded-b-[45px] shadow-lg sticky top-0 z-50">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h1 class="text-2xl font-black tracking-tighter">SANSKARDHAM</h1>
+                <p id="userLabel" class="text-[10px] font-bold text-blue-200 uppercase mt-1"></p>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="toggleShift()" id="shiftIco" class="bg-white/20 p-2 rounded-2xl text-xl shadow-inner">☀️</button>
+                <div id="roleLabel" class="bg-white/20 px-3 py-1 rounded-xl text-[10px] font-bold self-center">GUEST</div>
+            </div>
+        </div>
+        <div class="flex items-center bg-black/10 rounded-2xl px-4 py-2">
+            <span class="text-xs font-bold mr-2">📅</span>
+            <input type="date" id="dateInput" onchange="dateChanged()" class="bg-transparent text-white font-bold outline-none text-sm w-full">
+        </div>
+    </header>
+
+    <div id="loginPage" class="p-8 flex-grow flex flex-col justify-center space-y-5">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-4xl text-blue-600">🏥</span>
+            </div>
+            <h2 class="text-2xl font-black text-gray-800">Staff Portal</h2>
+            <p class="text-gray-400 text-sm">તમારી વિગત ભરો</p>
+        </div>
+        <div class="space-y-3">
+            <input type="text" id="sName" placeholder="તમારું નામ" class="w-full p-4 rounded-2xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-600 outline-none">
+            <input type="tel" id="sID" placeholder="રોલ નંબર (ID)" class="w-full p-4 rounded-2xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-600 outline-none">
+            <input type="password" id="aPass" placeholder="Admin Password (જો હોય તો)" class="w-full p-4 rounded-2xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-600 outline-none">
+        </div>
+        <button onclick="login()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold shadow-xl btn-active">ચાલુ કરો (Login)</button>
     </div>
 
-    <div class="mt-4 bg-white/20 p-3 rounded-2xl flex justify-between items-center">
-      <input type="date" id="date" class="bg-transparent outline-none text-white">
+    <div id="homePage" class="hidden p-5 pb-28 space-y-6 overflow-y-auto">
+        
+        <div id="marqueeBox" class="simple-notice relative hidden">
+            <marquee id="mainNoticeText">Sanskardham માં આપનું સ્વાગત છે...</marquee>
+            <button id="editMBtn" onclick="updateMText()" class="hidden absolute top-0 right-0 bg-red-600 text-white text-[8px] px-1 rounded">EDIT</button>
+        </div>
+
+        <div class="relative flex items-center">
+            <span class="absolute left-4 text-xl">🍳</span>
+            <input type="text" id="searchBar" onkeyup="doSearch()" placeholder="મારી ડ્યુટી ક્યાં છે?" class="w-full p-4 pl-12 rounded-2xl bg-white shadow-sm border border-gray-100 outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+        </div>
+        <div id="searchBox" class="hidden p-5 rounded-3xl border-2 font-bold text-center shadow-lg"></div>
+
+        <div class="flex justify-between items-center px-2">
+            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Departments</h3>
+            <button id="addDept" onclick="addNewDept()" class="hidden text-green-600 font-bold text-xs uppercase tracking-tighter">+ Add Dept</button>
+        </div>
+        <div id="deptGrid" class="grid grid-cols-2 gap-4"></div>
+
+        <div id="posterSection" class="mt-8">
+            <div class="flex justify-between items-center mb-2 px-2">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Posters</h3>
+                <button id="addPBtn" onclick="addP()" class="hidden text-blue-600 text-[10px] font-bold">+ ADD</button>
+            </div>
+            <div id="pList" class="flex space-x-3 overflow-x-auto pb-2"></div>
+        </div>
+
+        <div id="noticeSection" class="mt-6">
+            <div class="flex justify-between items-center mb-2 px-2">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Notices</h3>
+                <button id="addNBtn" onclick="addN()" class="hidden text-blue-600 text-[10px] font-bold">+ ADD</button>
+            </div>
+            <div id="nList" class="space-y-2"></div>
+        </div>
     </div>
 
-  </div>
-
-  <!-- SEARCH -->
-  <div class="p-4">
-    <div class="bg-white p-3 rounded-2xl shadow text-gray-500">
-      🔍 મારી ડ્યુટી ક્યાં છે?
+    <div id="listPage" class="hidden p-5 pb-28">
+        <button onclick="goHome()" class="text-blue-600 font-bold text-xs mb-6 flex items-center">⬅ BACK TO HOME</button>
+        <div class="text-center mb-8">
+            <h2 id="lTitle" class="text-xl font-black text-gray-800 uppercase leading-none"></h2>
+            <p id="lSub" class="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-[3px]"></p>
+        </div>
+        <div id="lBody" class="space-y-4"></div>
     </div>
-  </div>
 
-  <!-- DEPARTMENTS -->
-  <div class="px-4">
-    <h2 class="text-gray-400 font-bold mb-3">DEPARTMENTS</h2>
-
-    <div id="grid" class="grid grid-cols-2 gap-4"></div>
-  </div>
+    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto glass border-t p-4 flex justify-center items-center z-50">
+        <p class="text-blue-900 font-black text-[10px] tracking-[5px]">JATIN SOLANKI BY VISION</p>
+    </footer>
 
 </div>
-
-<div id="toast" class="toast"></div>
 
 <script>
+    const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref("hospital_v11_final");
 
-// Firebase
-firebase.initializeApp({
- databaseURL:"https://jatin-9a897-default-rtdb.firebaseio.com/"
-});
-const db=firebase.database();
+    let role = "viewer", shift = "Day", selectedDate = "", appData = {}, myName = "", myID = "";
 
-let role="",shift="day";
-const depts=["OPD","OFF LIST","EMERGENCY","DAYCARE","ICU","WARD"];
+    window.onload = () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('dateInput').value = today;
+        selectedDate = today;
+        
+        if(localStorage.getItem('j_name')) {
+            document.getElementById('sName').value = localStorage.getItem('j_name');
+            document.getElementById('sID').value = localStorage.getItem('j_id');
+        }
+    };
 
-// TOAST
-function toast(t){
- let el=toastBox=document.getElementById("toast");
- el.innerText=t;
- el.style.display="block";
- setTimeout(()=>el.style.display="none",2000);
-}
+    function login() {
+        myName = document.getElementById('sName').value.trim();
+        myID = document.getElementById('sID').value.trim();
+        const p = document.getElementById('aPass').value;
 
-// LOGIN
-function login(){
- let u=uid.value,p=pass.value;
+        if(!myName || !myID) return alert("નામ અને રોલ નંબર લખો!");
 
- if(u==="ssgd" && p==="9099020925"){role="admin";}
- else if(u==="ssgd" && p==="9712284024"){role="staff";}
- else {toast("Invalid Login"); return;}
+        localStorage.setItem('j_name', myName);
+        localStorage.setItem('j_id', myID);
 
- loginPage.style.display="none";
- app.style.display="block";
+        if(p === "14052001") role = "admin";
+        
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('homePage').classList.remove('hidden');
+        document.getElementById('roleLabel').innerText = role.toUpperCase();
+        document.getElementById('userLabel').innerText = `👤 ${myName} (${myID})`;
+        
+        if(role==='admin') {
+            document.getElementById('addDept').classList.remove('hidden');
+            document.getElementById('editMBtn').classList.remove('hidden');
+            document.getElementById('addPBtn').classList.remove('hidden');
+            document.getElementById('addNBtn').classList.remove('hidden');
+        }
 
- userText.innerText = role==="admin" ? "👤 Admin" : "👤 Staff";
-
- date.value=new Date().toISOString().split('T')[0];
-
- render();
-}
-
-// SHIFT
-function toggleShift(){
- shift = shift==="day" ? "night":"day";
- shiftBtn.innerText = shift==="day" ? "🌞 Day":"🌙 Night";
-}
-
-// RENDER CARDS
-function render(){
- grid.innerHTML="";
-
- depts.forEach(d=>{
-  let card=document.createElement("div");
-  card.className="card bg-white p-5 text-center cursor-pointer";
-
-  card.innerHTML=`
-   <div class="text-4xl mb-2">🏥</div>
-   <div class="font-bold">${d}</div>
-  `;
-
-  card.onclick=()=>openDept(d);
-
-  grid.appendChild(card);
- });
-}
-
-// OPEN DEPT
-function openDept(d){
- let slots="";
-
- for(let i=0;i<10;i++){
-  slots+=`
-   <input id="s${i}" class="w-full mb-2 p-2 border rounded-xl"
-   ${role==="staff"?"disabled":""}
-   placeholder="Slot ${i+1}">
-  `;
- }
-
- let html=`
-  <div class="fixed inset-0 bg-black/40 flex items-end">
-   <div class="bg-white w-full p-4 rounded-t-3xl max-h-[80vh] overflow-auto">
-    <h2 class="font-bold mb-3">${d}</h2>
-    ${slots}
-    <button onclick="closeModal()" class="bg-blue-600 text-white w-full py-2 rounded-xl mt-2">Close</button>
-   </div>
-  </div>
- `;
-
- document.body.insertAdjacentHTML("beforeend",html);
-
- loadDept(d);
-}
-
-// CLOSE
-function closeModal(){
- document.body.lastChild.remove();
-}
-
-// LOAD DATA
-function loadDept(d){
- for(let i=0;i<10;i++){
-  let ref=db.ref(`hospital_v11_final/${date.value}/${shift}/${d}/${i}`);
-
-  ref.on("value",snap=>{
-   let val=snap.val()||"";
-   let el=document.getElementById("s"+i);
-   if(el) el.value=val;
-  });
-
-  if(role==="admin"){
-   document.addEventListener("input",e=>{
-    if(e.target.id==="s"+i){
-     ref.set(e.target.value);
+        startApp();
     }
-   });
-  }
- }
-}
 
-</script>
+    function startApp() {
+        db.on('value', (s) => {
+            const freshData = s.val() || { "Depts": ["OPD", "OFF List"] };
+            if(JSON.stringify(appData) !== JSON.stringify(freshData) && role === 'viewer') {
+                checkDutyUpdates(freshData);
+            }
+            appData = freshData;
+            renderGrid();
+            renderExtras();
+        });
+    }
 
-</body>
-</html>
+    function renderExtras() {
+        // માર્ક્યુ
+        if(appData.mText) {
+            document.getElementById('marqueeBox').classList.remove('hidden');
+            document.getElementById('mainNoticeText').innerText = appData.mText;
+        }
+
+        // પોસ્ટર
+        const pl = document.getElementById('pList');
+        pl.innerHTML = "";
+        (appData.posters || []).forEach((u, i) => {
+            pl.innerHTML += `<div class="relative min-w-[120px]"><img src="${u}" class="h-24 w-32 object-cover rounded-xl shadow-sm border">${role==='admin'?`<button onclick="delP(${i})" class="absolute top-0 right-0 bg-red-600 text-white p-1 rounded text-[8px]">X</button>`:''}</div>`;
+        });
+
+        // નોટિસ
+        const nl = document.getElementById('nList');
+        nl.innerHTML = "";
+        (appData.notices || []).forEach((t, i) => {
+            nl.innerHTML += `<div class="p-3 bg-white rounded-xl border-l-4 border-blue-500 shadow-sm relative"><p class="text-[11px] font-bold text-gray-700">${t}</p>${role==='admin'?`<button onclick="delN(${i})" class="absolute top-1 right-1 text-gray-300">x</button>`:''}</div>`;
+        });
+    }
+
+    function updateMText() { const t = prompt("સૂચના પટ્ટી લખો:"); if(t) db.update({mText: t}); }
+    function addP() { const u = prompt("ફોટાની URL લિંક:"); if(u) { let p = appData.posters || [];
