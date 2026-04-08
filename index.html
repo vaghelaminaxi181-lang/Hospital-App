@@ -1,1 +1,353 @@
-<!doctype html> <html lang="gu"> <head>   <meta charset="UTF-8">   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">   <title>Sanskardham Hospital | Vision v2.0</title>   <script src="https://cdn.tailwindcss.com"></script>   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&amp;display=swap" rel="stylesheet">   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>   <style>         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; touch-action: manipulation; overflow-x: hidden; }         .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }         .btn-active:active { transform: scale(0.95); transition: 0.1s; }         .sidebar { transition: 0.3s; position: fixed; top: 0; left: -280px; height: 100%; width: 280px; background: white; z-index: 1000; box-shadow: 10px 0 20px rgba(0,0,0,0.1); }         .sidebar.open { left: 0; }         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }         .overlay.active { display: block; }     </style> </head> <body>    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>    <div id="sidebar" class="sidebar p-6 flex flex-col">     <div class="mb-8 border-b pb-4">       <h2 class="text-xl font-black text-blue-900">Sanskardham</h2>       <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Vision Menu</p>     </div>     <nav class="space-y-2">       <button onclick="showProfileForm()" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>👤</span> <span>My Profile</span></button>       <button onclick="showDutySection()" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>📅</span> <span>Duty Board</span></button>       <div id="adminGroup" class="hidden space-y-2 pt-4 border-t mt-4">         <p class="text-[9px] font-bold text-gray-400 uppercase px-4">Admin Controls</p>         <button onclick="showStaffList()" class="w-full text-left p-4 rounded-xl bg-blue-50 text-blue-700 flex items-center space-x-3 font-bold"><span>📋</span> <span>Staff Records</span></button>         <button onclick="showFullDutyRecords()" class="w-full text-left p-4 rounded-xl bg-blue-600 text-white flex items-center space-x-3 font-bold shadow-md"><span>📝</span> <span>View Full Duty List</span></button>       </div>     </nav>     <button onclick="location.reload()" class="mt-auto p-4 bg-gray-100 rounded-xl font-bold text-gray-500 text-xs text-center uppercase">Logout</button>   </div>    <div class="max-w-md mx-auto min-h-screen flex flex-col bg-white relative shadow-2xl">     <header class="gradient-header text-white p-6 rounded-b-[40px] shadow-lg sticky top-0 z-50">       <div class="flex justify-between items-center">         <div class="flex items-center space-x-4">           <button onclick="toggleMenu()" class="text-2xl">☰</button>           <div>             <h1 class="text-xl font-black tracking-tighter uppercase leading-none">Sanskardham</h1>             <p class="text-[9px] font-bold text-blue-200 uppercase tracking-widest">Hospital Portal</p>           </div>         </div>         <div id="roleBadge" class="hidden bg-white/20 px-3 py-1 rounded-xl text-[10px] font-bold uppercase">Guest</div>       </div>       <div id="dateArea" class="hidden flex items-center bg-black/10 rounded-2xl px-4 py-2 mt-4">         <input type="date" id="dateInput" onchange="refreshAll()" class="bg-transparent text-white font-bold outline-none text-sm w-full">         <button onclick="toggleShift()" id="shiftIco" class="ml-2 bg-white/20 p-1 rounded-lg text-lg">☀️</button>       </div>     </header>      <main class="flex-grow relative">        <div id="loginPage" class="p-8 absolute inset-0 flex flex-col justify-center space-y-5 bg-white z-40">         <div class="text-center mb-5">           <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4"><span class="text-4xl">🏥</span></div>           <h2 class="text-2xl font-black text-gray-800 tracking-tight">Staff Portal</h2>         </div>         <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">         <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">         <button onclick="login()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold btn-active uppercase shadow-xl">Login</button>       </div>        <div id="profileSection" class="hidden p-6">         <h2 class="text-2xl font-black mb-6">My Profile</h2>         <div class="space-y-4">           <input type="text" id="profName" placeholder="Full Name" class="w-full p-4 bg-gray-100 rounded-2xl font-bold outline-none">           <input type="text" id="profID" placeholder="Staff ID Number" class="w-full p-4 bg-gray-100 rounded-2xl font-bold outline-none">           <input type="number" id="profMobile" placeholder="Mobile Number" class="w-full p-4 bg-gray-100 rounded-2xl font-bold outline-none">           <input type="text" id="profExp" placeholder="Experience" class="w-full p-4 bg-gray-100 rounded-2xl font-bold outline-none">           <button onclick="submitProfile()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold uppercase shadow-lg">Submit Details</button>         </div>       </div>        <div id="staffListSection" class="hidden p-6">         <h2 class="text-2xl font-black mb-6">Staff Records</h2>         <div id="staffListContainer" class="space-y-3"></div>       </div>        <div id="dutyRecordsSection" class="hidden p-6">         <h2 class="text-2xl font-black mb-6 italic">Full Duty History</h2>         <div id="dutyRecordsContainer" class="space-y-3 pb-20"></div>       </div>        <div id="dutySection" class="hidden p-5 space-y-6">         <div class="relative">           <input type="text" id="searchBar" onkeyup="doSearch()" placeholder="Search Name..." class="w-full p-4 pl-12 rounded-2xl bg-white shadow-sm border border-gray-200 outline-none font-bold">           <span class="absolute left-4 top-4">🔍</span>         </div>         <div id="searchBox" class="hidden p-4 rounded-2xl font-bold text-center"></div>         <div id="deptGrid" class="grid grid-cols-2 gap-4"></div>       </div>        <div id="listPage" class="hidden p-5">         <button onclick="showDutySection()" class="text-blue-600 font-bold text-xs mb-6 uppercase">⬅ Back to Departments</button>         <div class="text-center mb-6">           <h2 id="lTitle" class="text-3xl font-black text-gray-800 uppercase italic"></h2>           <p id="lSub" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1"></p>         </div>         <div id="lBody" class="space-y-3"></div>       </div>      </main>      <footer class="p-4 flex justify-center border-t bg-white">       <p class="text-blue-900 font-black text-[9px] tracking-[4px] opacity-40">JATIN SOLANKI BY VISION</p>    </footer>   </div>    <div id="editModal" class="hidden fixed inset-0 bg-black/60 z-[2000] flex items-center justify-center p-6 backdrop-blur-sm">     <div class="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl">       <h3 class="font-black text-gray-800 mb-4 text-center border-b pb-2">Set Duty Range</h3>       <div class="space-y-3 mb-6">         <div class="flex space-x-2">           <div class="flex-1 text-center"><label class="text-[9px] font-bold">START</label><input type="date" id="rangeStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>           <div class="flex-1 text-center"><label class="text-[9px] font-bold">END</label><input type="date" id="rangeEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>         </div>         <input type="text" id="staffInput" placeholder="Enter Staff Name" class="w-full p-4 bg-gray-100 rounded-2xl font-bold outline-none text-center">       </div>       <div class="flex space-x-3">         <button onclick="closeEdit()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-400">CANCEL</button>         <button onclick="saveSlot()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold">SAVE</button>       </div>     </div>   </div>    <script>     const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };     firebase.initializeApp(firebaseConfig);     const db = firebase.database().ref("hospital_v11_final");     const profileDB = firebase.database().ref("staff_profiles");      let role = "viewer", shift = "Day", selectedDate = "", appData = {}, currentEditKey = "";      function toggleMenu() {       document.getElementById('sidebar').classList.toggle('open');       document.getElementById('overlay').classList.toggle('active');     }      function hideAll() {       ['loginPage','profileSection','staffListSection','dutySection','listPage','dutyRecordsSection'].forEach(id => {         document.getElementById(id).classList.add('hidden');       });     }      function login() {       const id = document.getElementById('loginID').value.trim();       const p = document.getElementById('loginPass').value;       if(id === "ssgd" && p === "9099020925") role = "admin";       else if(id === "ssgd" && p === "9712284024") role = "viewer";       else return alert("Invalid Login!");              hideAll();       document.getElementById('dutySection').classList.remove('hidden');       document.getElementById('dateArea').classList.remove('hidden');       document.getElementById('roleBadge').classList.remove('hidden');       document.getElementById('roleBadge').innerText = role;       if(role === 'admin') document.getElementById('adminGroup').classList.remove('hidden');              startSync();     }      function startSync() {       const today = new Date().toISOString().split('T')[0];       document.getElementById('dateInput').value = today;       selectedDate = today;       db.on('value', (s) => {         appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST"] };         renderGrid();       });     }      function renderGrid() {       const grid = document.getElementById('deptGrid');       grid.innerHTML = "";       const ds = appData["Depts"] || ["OPD", "EMERGENCY", "OFF LIST"];       ds.forEach(d => {         grid.innerHTML += `<div onclick="openView('${d}')" class="p-6 bg-white rounded-[30px] border border-slate-100 shadow-sm flex flex-col items-center btn-active cursor-pointer">           <span class="text-3xl mb-2">${d.includes('OFF')?'😴':'🏥'}</span>           <span class="font-bold text-slate-700 text-xs uppercase">${d}</span>         </div>`;       });     }      function openView(d) {       hideAll();       document.getElementById('listPage').classList.remove('hidden');       document.getElementById('lTitle').innerText = d;       document.getElementById('lSub').innerText = `${shift} | ${selectedDate}`;       let h = "";       const limit = (d === 'OPD') ? 10 : 6;       for(let i=1; i<=limit; i++) {         let key = `${selectedDate}_${d}_${i}_${shift}`;         let val = appData[key] || "---";         h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600 shadow-sm">           <span class="text-[10px] font-bold text-slate-400">Slot ${i}</span>           <span onclick="${role==='admin'?`openEdit('${key}')`:''}" class="${role==='admin'?'text-blue-600 font-bold underline cursor-pointer':'font-bold text-slate-800'}">${val}</span>         </div>`;       }       document.getElementById('lBody').innerHTML = h;     }      // --- NEW: View Full Duty Records (Admin) ---     function showFullDutyRecords() {       toggleMenu(); hideAll();       document.getElementById('dutyRecordsSection').classList.remove('hidden');       const cont = document.getElementById('dutyRecordsContainer');       cont.innerHTML = "<p class='text-center py-10 font-bold text-blue-300 animate-pulse'>Loading Records...</p>";              let rows = [];       Object.keys(appData).forEach(key => {         const p = key.split('_');         if(p.length === 4 && appData[key] !== "---") {           rows.push({ date: p[0], dept: p[1], slot: p[2], shift: p[3], name: appData[key] });         }       });              rows.sort((a,b) => new Date(b.date) - new Date(a.date));              if(rows.length === 0) {         cont.innerHTML = "<p class='text-center text-gray-400 py-10'>No Duty Records Set Yet.</p>";         return;       }              cont.innerHTML = "";       rows.forEach(r => {         cont.innerHTML += `           <div class="p-4 bg-white border border-blue-100 rounded-2xl shadow-sm flex flex-col">             <div class="flex justify-between items-center mb-1">               <span class="bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">${r.date}</span>               <span class="text-[9px] font-black text-blue-900 uppercase">${r.shift} Shift</span>             </div>             <p class="font-black text-gray-800 text-sm">${r.name}</p>             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">${r.dept} - Slot ${r.slot}</p>           </div>`;       });     }      function showProfileForm() { toggleMenu(); hideAll(); document.getElementById('profileSection').classList.remove('hidden'); }      function submitProfile() {       const name = document.getElementById('profName').value;       const id = document.getElementById('profID').value;       if(!name || !id) return alert("નામ અને ID જરૂરી છે");       profileDB.push({ name, id, mobile: document.getElementById('profMobile').value, exp: document.getElementById('profExp').value });       alert("Profile Saved!");       showDutySection();     }      function showStaffList() {       toggleMenu(); hideAll(); document.getElementById('staffListSection').classList.remove('hidden');       profileDB.once('value', (s) => {         const data = s.val();         const cont = document.getElementById('staffListContainer');         cont.innerHTML = "";         if(!data) return cont.innerHTML = "No Records Found";         Object.values(data).forEach(s => {           cont.innerHTML += `<div class="p-4 bg-white border border-blue-100 rounded-2xl shadow-sm">             <p class="font-black text-blue-900">${s.name}</p>             <p class="text-xs font-bold text-gray-500">ID: ${s.id} | Mob: ${s.mobile}</p>             <p class="text-xs text-blue-500">Exp: ${s.exp}</p>           </div>`;         });       });     }      function openEdit(key) { currentEditKey = key; document.getElementById('editModal').classList.remove('hidden'); }     function closeEdit() { document.getElementById('editModal').classList.add('hidden'); }      function saveSlot() {       const name = document.getElementById('staffInput').value.trim() || "---";       const startInput = document.getElementById('rangeStart').value;       const endInput = document.getElementById('rangeEnd').value;       if(!startInput || !endInput) return alert("તારીખ પસંદ કરો");       const start = new Date(startInput);       const end = new Date(endInput);       const parts = currentEditKey.split('_');       let updates = {};       let tempDate = new Date(start);       while(tempDate <= end) {         const dStr = tempDate.toISOString().split('T')[0];         updates[`${dStr}_${parts[1]}_${parts[2]}_${parts[3]}`] = name;         tempDate.setDate(tempDate.getDate() + 1);       }       db.update(updates).then(() => { closeEdit(); openView(parts[1]); });     }      function showDutySection() { if(document.getElementById('sidebar').classList.contains('open')) toggleMenu(); hideAll(); document.getElementById('dutySection').classList.remove('hidden'); }     function toggleShift() { shift = (shift === "Day") ? "Night" : "Day"; document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙"; if(!document.getElementById('listPage').classList.contains('hidden')) openView(document.getElementById('lTitle').innerText); }     function refreshAll() { selectedDate = document.getElementById('dateInput').value; if(!document.getElementById('listPage').classList.contains('hidden')) openView(document.getElementById('lTitle').innerText); }      function doSearch() {       const q = document.getElementById('searchBar').value.toLowerCase();       const res = document.getElementById('searchBox');       if(!q) { res.classList.add('hidden'); return; }       let found = "";       for(let k in appData) { if(k.startsWith(selectedDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) { found = k.split('_')[1]; break; } }       res.classList.remove('hidden');       res.innerHTML = found ? `✅ તમારી ડ્યુટી ${found} માં છે.` : `⚠️ નામ મળ્યું નથી.`;       res.className = found ? "p-4 rounded-2xl bg-green-50 text-green-700 font-bold" : "p-4 rounded-2xl bg-red-50 text-red-700 font-bold";     }   </script> </body> </html>
+<!doctype html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sanskardham Hospital | Vision v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
+        .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
+        .sidebar { transition: 0.3s; position: fixed; top: 0; left: -280px; height: 100%; width: 280px; background: white; z-index: 1000; box-shadow: 10px 0 20px rgba(0,0,0,0.1); }
+        .sidebar.open { left: 0; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+        .overlay.active { display: block; }
+        .btn-active:active { transform: scale(0.95); }
+        .hidden-important { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+
+<div id="sidebar" class="sidebar p-6 flex flex-col">
+    <div class="mb-8 border-b pb-4">
+        <h2 class="text-xl font-black text-blue-900">SANSKARDHAM</h2>
+        <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Navigation</p>
+    </div>
+    <nav class="space-y-2 flex-grow">
+        <button onclick="showSection('profileSection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>👤</span> <span>My Profile</span></button>
+        <button onclick="showSection('dutySection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>📅</span> <span>Duty Board</span></button>
+        
+        <div id="adminMenu" class="hidden pt-4 border-t mt-4 space-y-2">
+            <p class="text-[9px] font-bold text-gray-400 uppercase px-4 text-blue-600">Admin Panel</p>
+            <button onclick="showSection('staffListSection'); loadStaffRecords();" class="w-full text-left p-4 rounded-xl bg-blue-50 text-blue-700 flex items-center space-x-3 font-bold"><span>📋</span> <span>Staff Records</span></button>
+            <button onclick="showSection('fullDutySection'); loadFullDutyRecords();" class="w-full text-left p-4 rounded-xl bg-blue-600 text-white flex items-center space-x-3 font-bold"><span>📝</span> <span>Full Duty List</span></button>
+        </div>
+    </nav>
+    <button onclick="location.reload()" class="p-4 bg-red-50 rounded-xl font-bold text-red-500 text-xs text-center">LOGOUT</button>
+</div>
+
+<div class="max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-2xl relative">
+    <header class="gradient-header text-white p-6 rounded-b-[40px] sticky top-0 z-50 shadow-lg">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <button id="menuBtn" onclick="toggleMenu()" class="text-2xl hidden">☰</button>
+                <div>
+                    <h1 class="text-xl font-black uppercase leading-none">Sanskardham</h1>
+                    <p class="text-[9px] font-bold text-blue-200 tracking-widest uppercase">Vision v2.0</p>
+                </div>
+            </div>
+            <div id="roleBadge" class="hidden bg-white/20 px-3 py-1 rounded-xl text-[10px] font-bold uppercase">Guest</div>
+        </div>
+        <div id="dateArea" class="hidden mt-4 flex items-center bg-black/10 rounded-2xl px-4 py-2">
+            <input type="date" id="dateInput" onchange="refreshData()" class="bg-transparent text-white font-bold outline-none text-sm w-full">
+            <button onclick="toggleShift()" id="shiftIco" class="ml-2 bg-white/20 p-1 rounded-lg text-lg">☀️</button>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4">
+        <div id="loginPage" class="flex flex-col justify-center space-y-5 py-20">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner">🏥</div>
+                <h2 class="text-2xl font-black text-gray-800">Hospital Staff Login</h2>
+            </div>
+            <div class="space-y-3">
+                <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold focus:ring-2 focus:ring-blue-600">
+                <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold focus:ring-2 focus:ring-blue-600">
+            </div>
+            <button onclick="login()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold btn-active shadow-xl uppercase tracking-widest">Login</button>
+        </div>
+
+        <div id="profileSection" class="hidden space-y-4">
+            <h2 class="text-2xl font-black text-blue-900">My Profile</h2>
+            <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm space-y-4">
+                <input type="text" id="pName" placeholder="Staff Full Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border">
+                <input type="text" id="pID" placeholder="ID Number" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border">
+                <input type="number" id="pMobile" placeholder="Mobile Number" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border">
+                <input type="text" id="pExp" placeholder="Experience" class="w-full p-4 bg-gray-50 rounded-2xl font-bold outline-none border">
+                <button onclick="saveProfile()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold uppercase shadow-lg">Submit Details</button>
+            </div>
+        </div>
+
+        <div id="dutySection" class="hidden space-y-6">
+            <div class="relative">
+                <input type="text" id="searchBar" onkeyup="searchName()" placeholder="Search duty by name..." class="w-full p-4 pl-12 rounded-2xl border border-gray-100 shadow-sm outline-none font-bold">
+                <span class="absolute left-4 top-4">🔍</span>
+            </div>
+            <div id="searchRes" class="hidden p-4 rounded-2xl font-bold text-center"></div>
+            <div id="deptGrid" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <div id="listPage" class="hidden space-y-4">
+            <button onclick="showSection('dutySection')" class="text-blue-600 font-bold text-xs flex items-center">⬅ BACK TO DEPARTMENTS</button>
+            <div class="text-center bg-blue-50 py-4 rounded-3xl">
+                <h2 id="lTitle" class="text-2xl font-black text-blue-900 uppercase italic"></h2>
+                <p id="lSub" class="text-[10px] font-bold text-blue-400 tracking-[3px] mt-1"></p>
+            </div>
+            <div id="lBody" class="space-y-3"></div>
+        </div>
+
+        <div id="staffListSection" class="hidden space-y-3">
+            <h2 class="text-2xl font-black text-blue-900">Registered Staff</h2>
+            <div id="staffListCont" class="space-y-3"></div>
+        </div>
+
+        <div id="fullDutySection" class="hidden space-y-3">
+            <h2 class="text-2xl font-black italic text-blue-900">All Duty Records</h2>
+            <div id="fullDutyCont" class="space-y-3 pb-10"></div>
+        </div>
+    </main>
+</div>
+
+<div id="rangeModal" class="hidden fixed inset-0 bg-black/70 z-[2000] flex items-center justify-center p-6 backdrop-blur-md">
+    <div class="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl">
+        <h3 class="font-black text-center border-b pb-3 mb-5 text-blue-900">Set Duty Period</h3>
+        <div class="space-y-4 mb-6">
+            <div class="flex space-x-3">
+                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">START DATE</label><input type="date" id="rStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
+                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">END DATE</label><input type="date" id="rEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
+            </div>
+            <div>
+                <label class="text-[9px] font-bold text-gray-400 block mb-1 uppercase">Select Staff Name</label>
+                <input type="text" id="rStaff" placeholder="Type Staff Name..." class="w-full p-4 bg-blue-50 rounded-2xl font-bold text-center outline-none text-blue-900 border border-blue-100">
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <button onclick="closeModal()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-500 text-xs">CANCEL</button>
+            <button onclick="saveRangeDuty()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-xs uppercase shadow-lg">Set Duty</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref("hospital_v11_final");
+    const profDB = firebase.database().ref("staff_profiles");
+
+    let role = "viewer", shift = "Day", selDate = "", appData = {}, editKey = "";
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function showSection(id) {
+        if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
+        const ids = ['loginPage', 'profileSection', 'dutySection', 'listPage', 'staffListSection', 'fullDutySection'];
+        ids.forEach(x => document.getElementById(x).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function login() {
+        const id = document.getElementById('loginID').value.trim();
+        const p = document.getElementById('loginPass').value;
+        
+        if(id === "ssgd" && p === "9099020925") {
+            role = "admin";
+        } else if(id === "ssgd" && p === "9712284024") {
+            role = "viewer";
+        } else {
+            return alert("તમારો ID અથવા પાસવર્ડ ખોટો છે!");
+        }
+
+        // Show UI elements after login
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('menuBtn').classList.remove('hidden');
+        document.getElementById('dateArea').classList.remove('hidden');
+        document.getElementById('roleBadge').classList.remove('hidden');
+        document.getElementById('roleBadge').innerText = role;
+        
+        if(role === 'admin') {
+            document.getElementById('adminMenu').classList.remove('hidden');
+        }
+
+        selDate = new Date().toISOString().split('T')[0];
+        document.getElementById('dateInput').value = selDate;
+        
+        showSection('dutySection');
+        syncData();
+    }
+
+    function syncData() {
+        db.on('value', (s) => {
+            appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST"] };
+            renderGrid();
+        });
+    }
+
+    function renderGrid() {
+        const grid = document.getElementById('deptGrid');
+        grid.innerHTML = "";
+        const depts = appData.Depts || ["OPD", "EMERGENCY", "OFF LIST"];
+        depts.forEach(d => {
+            grid.innerHTML += `<div onclick="openSlots('${d}')" class="p-6 bg-white rounded-[35px] border border-blue-50 shadow-sm flex flex-col items-center btn-active cursor-pointer">
+                <span class="text-3xl mb-2">${d.includes('OFF')?'😴':'🏥'}</span>
+                <span class="font-black text-blue-900 text-xs uppercase">${d}</span>
+            </div>`;
+        });
+    }
+
+    function openSlots(d) {
+        showSection('listPage');
+        document.getElementById('lTitle').innerText = d;
+        document.getElementById('lSub').innerText = `${shift} | ${selDate}`;
+        let h = "";
+        const limit = (d === 'OPD') ? 10 : 6;
+        for(let i=1; i<=limit; i++) {
+            let key = `${selDate}_${d}_${i}_${shift}`;
+            let val = appData[key] || "---";
+            // Check admin role carefully here
+            const clickHandler = role === 'admin' ? `onclick="openRangeModal('${key}')"` : "";
+            const cursorClass = role === 'admin' ? "cursor-pointer text-blue-600 underline font-black" : "font-black text-gray-800";
+            
+            h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Slot ${i}</span>
+                <span ${clickHandler} class="${cursorClass}">${val}</span>
+            </div>`;
+        }
+        document.getElementById('lBody').innerHTML = h;
+    }
+
+    function openRangeModal(key) {
+        editKey = key;
+        const currentName = appData[key];
+        document.getElementById('rStaff').value = (currentName === "---" || !currentName) ? "" : currentName;
+        document.getElementById('rStart').value = selDate;
+        document.getElementById('rEnd').value = selDate;
+        document.getElementById('rangeModal').classList.remove('hidden');
+    }
+
+    function closeModal() { document.getElementById('rangeModal').classList.add('hidden'); }
+
+    function saveRangeDuty() {
+        const name = document.getElementById('rStaff').value.trim() || "---";
+        const startInput = document.getElementById('rStart').value;
+        const endInput = document.getElementById('rEnd').value;
+        
+        if(!startInput || !endInput) return alert("તારીખ પસંદ કરો");
+        
+        const start = new Date(startInput);
+        const end = new Date(endInput);
+        if(end < start) return alert("End date cannot be before start date!");
+
+        const parts = editKey.split('_'); // [date, dept, slot, shift]
+        let updates = {};
+        let temp = new Date(start);
+        
+        while(temp <= end) {
+            let dStr = temp.toISOString().split('T')[0];
+            let newKey = `${dStr}_${parts[1]}_${parts[2]}_${parts[3]}`;
+            updates[newKey] = name;
+            temp.setDate(temp.getDate() + 1);
+        }
+        
+        db.update(updates).then(() => { 
+            closeModal(); 
+            openSlots(parts[1]); 
+        });
+    }
+
+    function saveProfile() {
+        const name = document.getElementById('pName').value.trim();
+        const id = document.getElementById('pID').value.trim();
+        if(!name || !id) return alert("નામ અને ID જરૂરી છે!");
+        
+        profDB.push({ 
+            name, 
+            id, 
+            mob: document.getElementById('pMobile').value, 
+            exp: document.getElementById('pExp').value 
+        });
+        alert("પ્રોફાઇલ સફળતાપૂર્વક સબમિટ થઈ ગઈ!");
+        showSection('dutySection');
+    }
+
+    function loadStaffRecords() {
+        const cont = document.getElementById('staffListCont');
+        cont.innerHTML = "<p class='text-center text-blue-200'>Loading Records...</p>";
+        profDB.once('value', (s) => {
+            cont.innerHTML = "";
+            const data = s.val();
+            if(!data) return cont.innerHTML = "<p class='text-center text-gray-400'>No Profile Records Found.</p>";
+            Object.values(data).forEach(x => {
+                cont.innerHTML += `<div class="p-4 bg-white border-2 border-blue-50 rounded-3xl shadow-sm">
+                    <p class="font-black text-blue-900 text-lg">${x.name}</p>
+                    <p class="text-xs font-bold text-gray-500">ID: ${x.id} | Mobile: ${x.mob}</p>
+                    <p class="text-xs text-blue-400">Experience: ${x.exp}</p>
+                </div>`;
+            });
+        });
+    }
+
+    function loadFullDutyRecords() {
+        const cont = document.getElementById('fullDutyCont');
+        cont.innerHTML = "<p class='text-center text-blue-200'>Fetching Records...</p>";
+        let rows = [];
+        Object.keys(appData).forEach(k => {
+            const p = k.split('_');
+            if(p.length === 4 && appData[k] !== "---") {
+                rows.push({ d: p[0], dep: p[1], sl: p[2], sh: p[3], n: appData[k] });
+            }
+        });
+        rows.sort((a,b) => new Date(b.d) - new Date(a.d));
+        
+        cont.innerHTML = "";
+        if(rows.length === 0) return cont.innerHTML = "<p class='text-center text-gray-400'>No duty history found.</p>";
+        
+        rows.forEach(r => {
+            cont.innerHTML += `<div class="p-4 bg-white border border-blue-50 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="bg-blue-600 text-white text-[9px] px-3 py-0.5 rounded-full font-bold">${r.d}</span>
+                    <span class="text-[9px] font-black text-blue-900 uppercase">${r.sh} Shift</span>
+                </div>
+                <p class="font-black text-gray-800">${r.n}</p>
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">${r.dep} - Slot ${r.sl}</p>
+            </div>`;
+        });
+    }
+
+    function toggleShift() {
+        shift = (shift === "Day") ? "Night" : "Day";
+        document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙";
+        refreshData();
+    }
+
+    function refreshData() {
+        selDate = document.getElementById('dateInput').value;
+        if(!document.getElementById('listPage').classList.contains('hidden')) {
+            openSlots(document.getElementById('lTitle').innerText);
+        }
+    }
+
+    function searchName() {
+        const q = document.getElementById('searchBar').value.toLowerCase();
+        const res = document.getElementById('searchRes');
+        if(!q) { res.classList.add('hidden'); return; }
+        let foundDep = "";
+        for(let k in appData) {
+            if(k.startsWith(selDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) {
+                foundDep = k.split('_')[1]; break;
+            }
+        }
+        res.classList.remove('hidden');
+        res.innerHTML = foundDep ? `✅ તમારી ડ્યુટી ${foundDep} માં છે.` : `⚠️ તમારું નામ આજના લિસ્ટમાં નથી.`;
+        res.className = `p-4 rounded-2xl font-bold text-center ${foundDep?'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`;
+    }
+</script>
+</body>
+</html>
