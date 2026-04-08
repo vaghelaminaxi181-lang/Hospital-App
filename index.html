@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SANSKARDHAM VISION</title>
+    <title>SANSKARDHAM VISION V2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -13,39 +13,37 @@
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #ffffff; }
         .vision-blue { background: #2563eb; }
-        .input-box { border: 1px solid #e5e7eb; border-radius: 20px; padding: 18px; text-align: center; font-weight: 600; width: 100%; outline: none; background: #f9fafb; color: #1e293b; }
-        .input-box::placeholder { color: #9ca3af; }
+        .input-box { border: 1px solid #e5e7eb; border-radius: 15px; padding: 15px; text-align: center; font-weight: 600; width: 100%; outline: none; background: #f9fafb; transition: 0.3s; }
+        .input-box:focus { border-color: #2563eb; background: #fff; }
         
-        #toast { visibility: hidden; min-width: 250px; background: #333; color: #fff; text-align: center; border-radius: 50px; padding: 15px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-weight: 600; font-size: 13px; }
+        #toast { visibility: hidden; min-width: 250px; background: rgba(0,0,0,0.8); color: #fff; text-align: center; border-radius: 50px; padding: 15px; position: fixed; z-index: 1000; left: 50%; bottom: 80px; transform: translateX(-50%); font-weight: 600; }
         #toast.show { visibility: visible; animation: fadeInOut 2.5s; }
         @keyframes fadeInOut { 0% { opacity: 0; bottom: 50px; } 20% { opacity: 1; bottom: 80px; } 80% { opacity: 1; bottom: 80px; } 100% { opacity: 0; bottom: 50px; } }
         
-        .msg-bubble { max-width: 85%; padding: 12px; border-radius: 15px; margin-bottom: 10px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .msg-admin { background: #dcf8c6; align-self: flex-start; border-top-left-radius: 2px; }
+        .msg-bubble { max-width: 85%; padding: 12px; border-radius: 18px; margin-bottom: 10px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .msg-admin { background: #e7f3ff; color: #1e40af; border-bottom-left-radius: 2px; }
     </style>
 </head>
 <body>
 
 <div id="toast">સંદેશ...</div>
 
-<div class="max-w-md mx-auto min-h-screen relative flex flex-col overflow-hidden bg-white">
+<div class="max-w-md mx-auto min-h-screen relative flex flex-col overflow-hidden bg-white shadow-2xl">
 
-    <div id="loginPage" class="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center px-8">
-        <div class="mb-4">
-            <img src="https://img.icons8.com/color/144/hospital-buildings.png" class="w-24 h-24 object-contain">
+    <div id="loginPage" class="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center px-10">
+        <div class="mb-6">
+            <img src="https://img.icons8.com/color/144/hospital-buildings.png" class="w-24 h-24">
         </div>
-        <h1 class="text-3xl font-black text-[#1e293b] tracking-tighter italic uppercase leading-none">SANSKARDHAM VISION</h1>
-        <p class="text-[12px] font-bold text-gray-400 uppercase tracking-[3px] mt-2 mb-12">STAFF PORTAL</p>
+        <h1 class="text-3xl font-black text-slate-800 tracking-tighter italic uppercase">SANSKARDHAM VISION</h1>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[4px] mb-12">Hospital Management</p>
         
         <div class="w-full space-y-4">
             <input type="text" id="l_id" placeholder="User ID" class="input-box">
             <input type="password" id="l_pass" placeholder="Password" class="input-box">
-            <button onclick="handleLogin()" class="w-full bg-[#2563eb] text-white p-5 rounded-2xl font-black tracking-widest shadow-xl active:scale-95 transition-all uppercase mt-2">LOGIN</button>
+            <button onclick="handleLogin()" class="w-full bg-[#2563eb] text-white p-4 rounded-xl font-black tracking-widest shadow-lg active:scale-95 transition-all mt-4 uppercase">LOGIN</button>
         </div>
         
-        <div class="absolute bottom-6">
-            <p class="text-[10px] font-bold text-blue-900 opacity-30 tracking-[3px] uppercase">JATIN SOLANKI BY VISION</p>
-        </div>
+        <p class="mt-20 text-[8px] font-black text-blue-900 opacity-20 tracking-[4px] uppercase">Jatin Solanki By Vision</p>
     </div>
 
     <div id="appBody" class="hidden flex flex-col flex-grow">
@@ -53,7 +51,7 @@
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">SANSKARDHAM</h1>
-                    <p id="roleTag" class="text-[9px] font-black opacity-60 tracking-widest mt-1 uppercase">GUEST</p>
+                    <p id="roleTag" class="text-[9px] font-black opacity-60 tracking-widest mt-1 uppercase">...</p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button onclick="toggleShift()" id="shiftBtn" class="bg-white/20 p-2.5 rounded-2xl text-lg shadow-inner">☀️</button>
@@ -69,30 +67,32 @@
         <div id="menuView" class="px-6 -mt-8 space-y-6 pb-24">
             <div onclick="openNotice()" class="w-full bg-orange-500 p-5 rounded-[30px] shadow-lg flex items-center justify-between text-white active:scale-95 cursor-pointer">
                 <div class="flex items-center space-x-4"><span>📢</span><span class="font-black text-sm uppercase tracking-wider">Notice Board</span></div>
-                <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">VIEW</span>
+                <span class="bg-white/20 px-4 py-1 rounded-full text-[10px] font-bold">OPEN</span>
             </div>
-            <div id="gridArea" class="grid grid-cols-2 gap-4">
-                </div>
+            <div id="gridArea" class="grid grid-cols-2 gap-4"></div>
         </div>
 
         <div id="slotView" class="hidden px-6 pt-6 space-y-4 pb-24">
             <div class="flex justify-between items-center">
                 <button onclick="goHome()" class="text-blue-600 font-bold text-[10px] uppercase bg-blue-50 px-5 py-2 rounded-full border border-blue-100 shadow-sm">⬅ Back</button>
-                <button onclick="downloadDuty()" class="bg-green-600 text-white font-bold text-[10px] uppercase px-5 py-2 rounded-full shadow-md active:scale-95 transition-all">📥 Download</button>
+                <button onclick="downloadDuty()" class="bg-green-600 text-white font-bold text-[10px] uppercase px-5 py-2 rounded-full shadow-md active:scale-95">📥 Download</button>
             </div>
-            <div id="captureArea" class="bg-white p-5 rounded-[35px] border border-gray-100">
-                <div class="text-center mb-5 border-b pb-4">
-                    <h2 id="vTitle" class="text-2xl font-black text-slate-800 uppercase italic leading-none"></h2>
+            <div id="captureArea" class="bg-white p-5 rounded-[35px] border border-gray-100 shadow-sm">
+                <div class="text-center mb-5 border-b border-dashed pb-4">
+                    <h2 id="vTitle" class="text-2xl font-black text-slate-800 uppercase italic"></h2>
                     <p id="vSub" class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2"></p>
                 </div>
                 <div id="slotContainer" class="space-y-3"></div>
             </div>
         </div>
 
-        <div id="noticeView" class="hidden flex-grow flex flex-col bg-[#F0F2F5] pb-24">
-            <div class="bg-[#2563eb] p-4 text-white flex items-center space-x-4">
+        <div id="noticeView" class="hidden flex-grow flex flex-col bg-[#f0f2f5] pb-24">
+            <div class="bg-[#2563eb] p-4 text-white flex items-center space-x-4 shadow-md">
                 <button onclick="goHome()" class="text-xl">←</button>
-                <span class="font-bold">Hospital Notices</span>
+                <div class="flex flex-col">
+                    <span class="font-bold uppercase tracking-widest text-sm">Hospital Notices</span>
+                    <span class="text-[8px] opacity-70">Sanskar Dham Vision</span>
+                </div>
             </div>
             <div id="noticeList" class="flex-grow p-4 overflow-y-auto flex flex-col"></div>
             
@@ -102,7 +102,7 @@
                     <button onclick="sendMsg('text')" class="bg-blue-600 text-white p-3 rounded-2xl px-5 font-black text-xs uppercase shadow-md">Send</button>
                 </div>
                 <div class="flex justify-around py-1 border-t mt-1 pt-2">
-                    <label class="text-[10px] font-black text-blue-600 cursor-pointer">📸 PHOTO <input type="file" accept="image/*" class="hidden" onchange="handleFile('image', this)"></label>
+                    <label class="text-[10px] font-black text-blue-600 cursor-pointer">📷 PHOTO <input type="file" accept="image/*" class="hidden" onchange="handleFile('image', this)"></label>
                     <label class="text-[10px] font-black text-red-600 cursor-pointer">📄 PDF <input type="file" accept=".pdf" class="hidden" onchange="handleFile('pdf', this)"></label>
                 </div>
             </div>
@@ -119,6 +119,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -138,10 +139,9 @@
     function handleLogin() {
         const id = document.getElementById('l_id').value.trim();
         const pw = document.getElementById('l_pass').value;
-        
         if (id === "ssgd" && pw === "9099020925") { role = "admin"; launch(); }
         else if (id === "ssgd" && pw === "9712284024") { role = "staff"; launch(); }
-        else { msg("ID અથવા પાસવર્ડ ખોટો છે!"); }
+        else { msg("User ID અથવા પાસવર્ડ ખોટો છે!"); }
     }
 
     function launch() {
@@ -159,7 +159,7 @@
             }
         });
         renderGrid();
-        msg("સ્વાગત છે!");
+        msg("સફળતાપૂર્વક લોગિન!");
     }
 
     function renderGrid() {
@@ -197,11 +197,11 @@
     function closeModal() { document.getElementById('editModal').classList.add('hidden'); }
 
     function downloadDuty() {
-        msg("ડાઉનલોડ થઈ રહ્યું છે...");
+        msg("ફોટો બની રહ્યો છે...");
         html2canvas(document.querySelector("#captureArea")).then(canvas => {
             let link = document.createElement('a'); link.download = `Duty_${date}.png`;
             link.href = canvas.toDataURL(); link.click();
-            msg("ફોટો સેવ થયો!");
+            msg("ડાઉનલોડ સફળ!");
         });
     }
 
@@ -214,7 +214,7 @@
             const data = snap.val(); if(!data) return;
             Object.keys(data).forEach(id => {
                 const n = data[id];
-                let body = n.type === 'text' ? `<p class="font-bold">${n.content}</p>` : n.type === 'image' ? `<img src="${n.content}" class="rounded-lg max-h-60 w-full object-cover">` : `<div class="p-2 bg-red-50 text-red-600 font-bold rounded-lg text-xs">📄 PDF FILE</div>`;
+                let body = n.type === 'text' ? `<p class="font-bold">${n.content}</p>` : n.type === 'image' ? `<img src="${n.content}" class="rounded-lg max-h-60 w-full object-cover">` : `<div class="p-2 bg-red-50 text-red-600 font-bold rounded-lg text-xs">📄 PDF ATTACHMENT</div>`;
                 list.innerHTML += `<div class="msg-bubble msg-admin self-start shadow-sm">
                     ${body}<p class="text-[8px] opacity-50 mt-2 text-right">${n.time}</p>
                     ${role === 'admin' ? `<button onclick="delN('${id}')" class="text-[8px] text-red-400 font-bold mt-2 pt-1 border-t w-full text-left uppercase">Delete</button>` : ''}
@@ -227,4 +227,22 @@
     function sendMsg(type, content = "") {
         const txt = document.getElementById('msgText').value.trim();
         if(!txt && type === 'text') return;
-        nDB.push({ type, content: type === '
+        nDB.push({ type, content: type === 'text' ? txt : content, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), timestamp: Date.now() });
+        document.getElementById('msgText').value = "";
+        msg("સૂચના મોકલાઈ!");
+    }
+
+    function handleFile(type, input) {
+        const file = input.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => sendMsg(type, e.target.result);
+        reader.readAsDataURL(file);
+        msg("અપલોડ થઈ રહ્યું છે...");
+    }
+
+    function delN(id) { if(confirm("ડીલીટ?")) nDB.child(id).remove().then(()=>msg("હટાવી દીધું!")); }
+    function toggleShift() { shift = shift === "Day" ? "Night" : "Day"; document.getElementById('shiftBtn').innerText = shift === "Day" ? "☀️" : "🌙"; if(!document.getElementById('slotView').classList.contains('hidden')) renderSlots(document.getElementById('vTitle').innerText); }
+    function refreshData() { date = document.getElementById('appDate').value; if(!document.getElementById('slotView').classList.contains('hidden')) renderSlots(document.getElementById('vTitle').innerText); }
+</script>
+</body>
+</html>
