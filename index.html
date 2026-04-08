@@ -8,6 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
@@ -71,6 +75,40 @@
             <button onclick="login()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold btn-active shadow-xl uppercase tracking-widest">Login</button>
         </div>
 
+        <div id="fullDutySection" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-blue-50 space-y-3">
+                <h2 class="text-xl font-black text-blue-900 uppercase italic">Duty Report</h2>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] font-bold text-gray-400">START DATE</label>
+                        <input type="date" id="fStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-bold text-gray-400">END DATE</label>
+                        <input type="date" id="fEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="loadFullDutyRecords()" class="flex-1 bg-blue-600 text-white p-3 rounded-xl font-bold text-xs uppercase shadow-md">Filter List</button>
+                    <button onclick="downloadPDF()" class="flex-1 bg-green-600 text-white p-3 rounded-xl font-bold text-xs uppercase shadow-md">PDF Download</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-blue-50">
+                <table class="w-full text-left border-collapse min-w-[450px]">
+                    <thead class="bg-slate-100 text-blue-900 text-[10px] uppercase font-black">
+                        <tr>
+                            <th class="p-3 border-b">Date</th>
+                            <th class="p-3 border-b">Staff Name</th>
+                            <th class="p-3 border-b">Dept</th>
+                            <th class="p-3 border-b">Shift</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fullDutyCont" class="text-[11px] font-bold text-gray-700"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="profileSection" class="hidden space-y-4">
             <h2 class="text-2xl font-black text-blue-900">My Profile</h2>
             <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm space-y-4">
@@ -103,11 +141,6 @@
         <div id="staffListSection" class="hidden space-y-3">
             <h2 class="text-2xl font-black text-blue-900">Staff Records</h2>
             <div id="staffListCont" class="space-y-3"></div>
-        </div>
-
-        <div id="fullDutySection" class="hidden space-y-3">
-            <h2 class="text-2xl font-black italic text-blue-900">Duty History</h2>
-            <div id="fullDutyCont" class="space-y-3 pb-10"></div>
         </div>
     </main>
 
@@ -166,13 +199,9 @@
         const id = document.getElementById('loginID').value.trim();
         const p = document.getElementById('loginPass').value;
         
-        if(id === "ssgd" && p === "9099020925") {
-            role = "admin";
-        } else if(id === "ssgd" && p === "9712284024") {
-            role = "viewer";
-        } else {
-            return alert("ખોટો પાસવર્ડ!");
-        }
+        if(id === "ssgd" && p === "9099020925") { role = "admin"; } 
+        else if(id === "ssgd" && p === "9712284024") { role = "viewer"; } 
+        else { return alert("ખોટો પાસવર્ડ!"); }
 
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('menuBtn').classList.remove('hidden');
@@ -184,6 +213,8 @@
 
         selDate = new Date().toISOString().split('T')[0];
         document.getElementById('dateInput').value = selDate;
+        document.getElementById('fStart').value = selDate;
+        document.getElementById('fEnd').value = selDate;
         
         showSection('dutySection');
         syncData();
@@ -219,7 +250,6 @@
             let val = appData[key] || "---";
             const handler = role === 'admin' ? `onclick="openRangeModal('${key}')"` : "";
             const style = role === 'admin' ? "cursor-pointer text-blue-600 underline font-black" : "font-black text-gray-800";
-            
             h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">Slot ${i}</span>
                 <span ${handler} class="${style}">${val}</span>
@@ -228,6 +258,72 @@
         document.getElementById('lBody').innerHTML = h;
     }
 
+    function loadFullDutyRecords() {
+        const cont = document.getElementById('fullDutyCont');
+        const sDate = document.getElementById('fStart').value;
+        const eDate = document.getElementById('fEnd').value;
+        cont.innerHTML = "<tr><td colspan='4' class='p-5 text-center text-blue-300'>Filtering...</td></tr>";
+        
+        let rows = [];
+        Object.keys(appData).forEach(k => {
+            const p = k.split('_');
+            if(p.length === 4 && appData[k] !== "---") {
+                const dDate = p[0];
+                if ((!sDate || dDate >= sDate) && (!eDate || dDate <= eDate)) {
+                    rows.push({ d: p[0], dep: p[1], sl: p[2], sh: p[3], n: appData[k] });
+                }
+            }
+        });
+
+        rows.sort((a,b) => new Date(b.d) - new Date(a.d));
+        cont.innerHTML = "";
+        if(rows.length === 0) {
+            cont.innerHTML = "<tr><td colspan='4' class='p-5 text-center text-gray-400'>No Records Found</td></tr>";
+            return;
+        }
+
+        rows.forEach((r, i) => {
+            const bg = i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30';
+            cont.innerHTML += `<tr class="${bg} border-b border-gray-100">
+                <td class="p-3 text-blue-600 whitespace-nowrap">${r.d}</td>
+                <td class="p-3 font-black text-gray-900 uppercase">${r.n}</td>
+                <td class="p-3 text-gray-500">${r.dep} <span class="text-[8px] block">Slot ${r.sl}</span></td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded text-[9px] ${r.sh==='Day'?'bg-orange-100 text-orange-600':'bg-indigo-100 text-indigo-600'}">${r.sh}</span></td>
+            </tr>`;
+        });
+    }
+
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("SANSKARDHAM HOSPITAL - DUTY LIST", 14, 15);
+        doc.setFontSize(9);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 22);
+
+        const data = [];
+        document.querySelectorAll("#fullDutyCont tr").forEach(row => {
+            const cols = row.querySelectorAll("td");
+            if(cols.length > 0) {
+                data.push([cols[0].innerText, cols[1].innerText, cols[2].innerText.replace("\n", " "), cols[3].innerText]);
+            }
+        });
+
+        if(data.length === 0) return alert("કોઈ ડેટા નથી!");
+
+        doc.autoTable({
+            startY: 28,
+            head: [['Date', 'Staff Name', 'Department', 'Shift']],
+            body: data,
+            theme: 'grid',
+            headStyles: { fillColor: [30, 58, 138] },
+            styles: { fontSize: 8, fontStyle: 'bold' }
+        });
+
+        doc.save(`Duty_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+
+    // Modal & Save Functions
     function openRangeModal(key) {
         editKey = key;
         document.getElementById('rStaff').value = (appData[key] === "---" || !appData[key]) ? "" : appData[key];
@@ -240,28 +336,49 @@
 
     function saveRangeDuty() {
         const name = document.getElementById('rStaff').value.trim() || "---";
-        const startVal = document.getElementById('rStart').value;
-        const endVal = document.getElementById('rEnd').value;
+        const start = new Date(document.getElementById('rStart').value);
+        const end = new Date(document.getElementById('rEnd').value);
+        if(!start || !end) return alert("તારીખ પસંદ કરો");
         
-        if(!startVal || !endVal) return alert("તારીખ પસંદ કરો");
-        
-        const start = new Date(startVal);
-        const end = new Date(endVal);
         const parts = editKey.split('_'); 
         let updates = {};
         let temp = new Date(start);
-        
         while(temp <= end) {
             let dStr = temp.toISOString().split('T')[0];
             let k = `${dStr}_${parts[1]}_${parts[2]}_${parts[3]}`;
             updates[k] = name;
             temp.setDate(temp.getDate() + 1);
         }
-        
-        db.update(updates).then(() => { 
-            closeModal(); 
-            openSlots(parts[1]); 
-        });
+        db.update(updates).then(() => { closeModal(); openSlots(parts[1]); });
+    }
+
+    // Helper Functions
+    function toggleShift() {
+        shift = (shift === "Day") ? "Night" : "Day";
+        document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙";
+        refreshData();
+    }
+
+    function refreshData() {
+        selDate = document.getElementById('dateInput').value;
+        if(!document.getElementById('listPage').classList.contains('hidden')) {
+            openSlots(document.getElementById('lTitle').innerText);
+        }
+    }
+
+    function searchName() {
+        const q = document.getElementById('searchBar').value.toLowerCase();
+        let foundDep = "";
+        if(!q) { document.getElementById('searchRes').classList.add('hidden'); return; }
+        for(let k in appData) {
+            if(k.startsWith(selDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) {
+                foundDep = k.split('_')[1]; break;
+            }
+        }
+        const resDiv = document.getElementById('searchRes');
+        resDiv.classList.remove('hidden');
+        resDiv.innerHTML = foundDep ? `✅ તમારી ડ્યુટી ${foundDep} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
+        resDiv.className = `p-4 rounded-2xl font-bold text-center ${foundDep?'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`;
     }
 
     function saveProfile() {
@@ -287,58 +404,6 @@
                 </div>`;
             });
         });
-    }
-
-    function loadFullDutyRecords() {
-        const cont = document.getElementById('fullDutyCont');
-        cont.innerHTML = "";
-        let rows = [];
-        Object.keys(appData).forEach(k => {
-            const p = k.split('_');
-            if(p.length === 4 && appData[k] !== "---") {
-                rows.push({ d: p[0], dep: p[1], sl: p[2], sh: p[3], n: appData[k] });
-            }
-        });
-        rows.sort((a,b) => new Date(b.d) - new Date(a.d));
-        rows.forEach(r => {
-            cont.innerHTML += `<div class="p-4 bg-white border border-blue-50 rounded-2xl shadow-sm">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="bg-blue-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">${r.d}</span>
-                    <span class="text-[9px] font-black text-blue-900 uppercase">${r.sh} Shift</span>
-                </div>
-                <p class="font-black text-gray-800">${r.n}</p>
-                <p class="text-[10px] text-gray-400 uppercase font-bold">${r.dep} - Slot ${r.sl}</p>
-            </div>`;
-        });
-    }
-
-    function toggleShift() {
-        shift = (shift === "Day") ? "Night" : "Day";
-        document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙";
-        refreshData();
-    }
-
-    function refreshData() {
-        selDate = document.getElementById('dateInput').value;
-        if(!document.getElementById('listPage').classList.contains('hidden')) {
-            openSlots(document.getElementById('lTitle').innerText);
-        }
-    }
-
-    function searchName() {
-        const q = document.getElementById('searchBar').value.toLowerCase();
-        const res = document.getElementById('searchBox'); // Updated reference
-        let foundDep = "";
-        if(!q) { document.getElementById('searchRes').classList.add('hidden'); return; }
-        for(let k in appData) {
-            if(k.startsWith(selDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) {
-                foundDep = k.split('_')[1]; break;
-            }
-        }
-        const resDiv = document.getElementById('searchRes');
-        resDiv.classList.remove('hidden');
-        resDiv.innerHTML = foundDep ? `✅ તમારી ડ્યુટી ${foundDep} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
-        resDiv.className = `p-4 rounded-2xl font-bold text-center ${foundDep?'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`;
     }
 </script>
 </body>
