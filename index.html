@@ -21,7 +21,6 @@
         .overlay.active { display: block; }
         .btn-active:active { transform: scale(0.95); }
         
-        /* Suggestion Styling */
         .suggestion-box { position: absolute; width: 100%; background: white; border: 2px solid #e2e8f0; border-radius: 15px; max-height: 220px; overflow-y: auto; z-index: 3000; box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 5px; }
         .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
         .suggestion-item:hover { background-color: #eff6ff; }
@@ -57,6 +56,8 @@
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
                 <button id="menuBtn" onclick="toggleMenu()" class="text-2xl hidden">☰</button>
+                <button id="backBtn" onclick="showSection('dutySection')" class="text-2xl hidden">⬅</button>
+                
                 <div>
                     <h1 class="text-xl font-black uppercase leading-none">Sanskardham</h1>
                     <p class="text-[9px] font-bold text-blue-200 tracking-widest uppercase">Vision v2.0</p>
@@ -125,7 +126,7 @@
         </div>
 
         <div id="listPage" class="hidden space-y-4">
-            <button onclick="showSection('dutySection')" class="text-blue-600 font-bold text-xs flex items-center">⬅ BACK</button>
+            <button onclick="showSection('dutySection')" class="bg-gray-100 text-blue-600 px-4 py-2 rounded-full font-bold text-xs flex items-center shadow-sm w-fit">⬅ BACK TO BOARD</button>
             <div class="text-center bg-blue-50 py-4 rounded-3xl">
                 <h2 id="lTitle" class="text-2xl font-black text-blue-900 uppercase"></h2>
                 <p id="lSub" class="text-[10px] font-bold text-blue-400 mt-1"></p>
@@ -142,27 +143,17 @@
 <div id="rangeModal" class="hidden fixed inset-0 bg-black/70 z-[2000] flex items-center justify-center p-6 backdrop-blur-md">
     <div class="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl relative">
         <h3 class="font-black text-center border-b pb-3 mb-5 text-blue-900 uppercase">Set Duty Slot</h3>
-        
         <div class="space-y-4 mb-6">
             <div class="flex space-x-3">
-                <div class="flex-1">
-                    <label class="text-[9px] font-bold text-gray-400 block mb-1">START DATE</label>
-                    <input type="date" id="rStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                </div>
-                <div class="flex-1">
-                    <label class="text-[9px] font-bold text-gray-400 block mb-1">END DATE</label>
-                    <input type="date" id="rEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
-                </div>
+                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">START DATE</label><input type="date" id="rStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
+                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">END DATE</label><input type="date" id="rEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
             </div>
-            
             <div class="relative">
-                <label class="text-[9px] font-bold text-gray-400 block mb-1">SELECT STAFF (FILTERED)</label>
+                <label class="text-[9px] font-bold text-gray-400 block mb-1">SELECT STAFF</label>
                 <input type="text" id="rStaff" onkeyup="showSuggestions(this.value)" placeholder="નામ ટાઇપ કરો..." autocomplete="off" class="w-full p-4 bg-blue-50 rounded-2xl font-bold text-center outline-none border border-blue-100">
-                
                 <div id="staffSuggestions" class="suggestion-box hidden"></div>
             </div>
         </div>
-
         <div class="flex space-x-3">
             <button onclick="closeModal()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-500 text-xs">CANCEL</button>
             <button onclick="saveRangeDuty()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-xs uppercase">Save Duty</button>
@@ -179,11 +170,22 @@
     let role = "viewer", shift = "Day", selDate = "", appData = {}, editKey = "", allStaffProfiles = [];
 
     function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+
+    // Updated showSection with Back Button Logic
     function showSection(id) { 
         if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
         const ids = ['loginPage', 'profileSection', 'dutySection', 'listPage', 'staffListSection', 'fullDutySection'];
         ids.forEach(x => document.getElementById(x).classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
+
+        // Logic to show Menu icon or Back icon in Header
+        if(id === 'dutySection') {
+            document.getElementById('menuBtn').classList.remove('hidden');
+            document.getElementById('backBtn').classList.add('hidden');
+        } else if(id !== 'loginPage') {
+            document.getElementById('menuBtn').classList.add('hidden');
+            document.getElementById('backBtn').classList.remove('hidden');
+        }
     }
 
     function login() {
@@ -194,7 +196,6 @@
         else return alert("ખોટો પાસવર્ડ!");
 
         document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('menuBtn').classList.remove('hidden');
         document.getElementById('dateArea').classList.remove('hidden');
         document.getElementById('roleBadge').classList.remove('hidden');
         document.getElementById('roleBadge').innerText = role;
@@ -210,69 +211,34 @@
         profDB.on('value', (s) => { const data = s.val(); allStaffProfiles = data ? Object.values(data) : []; });
     }
 
-    // UPDATED FILTER LOGIC: Strict Dept Filter + Visual Badge
     function showSuggestions(val) {
         const box = document.getElementById('staffSuggestions');
-        const currentDept = editKey.split('_')[1].toLowerCase(); // e.g. "opd" or "orthopedic"
-
-        // 1. Filter staff based on the current department experience
+        const currentDept = editKey.split('_')[1].toLowerCase();
         const filtered = allStaffProfiles.filter(staff => {
             const hasExp = staff.exp && staff.exp.toLowerCase().includes(currentDept);
             const matchesSearch = staff.name.toLowerCase().includes(val.toLowerCase());
             return hasExp && matchesSearch;
         });
-
         if (filtered.length > 0) {
-            box.innerHTML = filtered.map(staff => `
-                <div class="suggestion-item" onclick="selectStaff('${staff.name}')">
-                    <span class="staff-name">${staff.name}</span>
-                    <span class="exp-tag">${staff.exp}</span>
-                </div>
-            `).join('');
+            box.innerHTML = filtered.map(staff => `<div class="suggestion-item" onclick="selectStaff('${staff.name}')"><span class="staff-name">${staff.name}</span><span class="exp-tag">${staff.exp}</span></div>`).join('');
             box.classList.remove('hidden');
         } else {
-            box.innerHTML = `<div class="no-data">આ વિભાગ (${currentDept.toUpperCase()}) માટે કોઈ સ્ટાફ મળ્યો નથી.</div>`;
+            box.innerHTML = `<div class="no-data">કોઈ સ્ટાફ મળ્યો નથી.</div>`;
             box.classList.remove('hidden');
-            if(val === "" && filtered.length === 0) { /* Keep it visible to show no-data msg */ }
         }
     }
 
-    function selectStaff(name) {
-        document.getElementById('rStaff').value = name;
-        document.getElementById('staffSuggestions').classList.add('hidden');
-    }
-
-    function openRangeModal(key) {
-        editKey = key;
-        document.getElementById('rStaff').value = (appData[key] === "---") ? "" : appData[key];
-        document.getElementById('rStart').value = selDate;
-        document.getElementById('rEnd').value = selDate;
-        document.getElementById('rangeModal').classList.remove('hidden');
-        showSuggestions(""); // Show list as soon as modal opens
-    }
-
-    function closeModal() { 
-        document.getElementById('rangeModal').classList.add('hidden'); 
-        document.getElementById('staffSuggestions').classList.add('hidden'); 
-    }
-
-    // Remaining standard functions (syncData, renderGrid, openSlots, saveRangeDuty, etc.)
-    function syncData() {
-        db.on('value', (s) => {
-            appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"] };
-            renderGrid();
-        });
-    }
+    function selectStaff(name) { document.getElementById('rStaff').value = name; document.getElementById('staffSuggestions').classList.add('hidden'); }
+    function openRangeModal(key) { editKey = key; document.getElementById('rStaff').value = (appData[key] === "---") ? "" : appData[key]; document.getElementById('rStart').value = selDate; document.getElementById('rEnd').value = selDate; document.getElementById('rangeModal').classList.remove('hidden'); showSuggestions(""); }
+    function closeModal() { document.getElementById('rangeModal').classList.add('hidden'); document.getElementById('staffSuggestions').classList.add('hidden'); }
+    function syncData() { db.on('value', (s) => { appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"] }; renderGrid(); }); }
 
     function renderGrid() {
         const grid = document.getElementById('deptGrid');
         grid.innerHTML = "";
         const depts = appData.Depts || ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"];
         depts.forEach(d => {
-            grid.innerHTML += `<div onclick="openSlots('${d}')" class="p-6 bg-white rounded-[35px] border border-blue-50 shadow-sm flex flex-col items-center btn-active cursor-pointer">
-                <span class="text-3xl mb-2">${d.includes('OFF')?'😴':'🏥'}</span>
-                <span class="font-black text-blue-900 text-xs uppercase">${d}</span>
-            </div>`;
+            grid.innerHTML += `<div onclick="openSlots('${d}')" class="p-6 bg-white rounded-[35px] border border-blue-50 shadow-sm flex flex-col items-center btn-active cursor-pointer"><span class="text-3xl mb-2">${d.includes('OFF')?'😴':'🏥'}</span><span class="font-black text-blue-900 text-xs uppercase">${d}</span></div>`;
         });
     }
 
@@ -287,10 +253,7 @@
             let val = appData[key] || "---";
             const handler = role === 'admin' ? `onclick="openRangeModal('${key}')"` : "";
             const style = role === 'admin' ? "cursor-pointer text-blue-600 underline font-black" : "font-black text-gray-800";
-            h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
-                <span class="text-[10px] font-bold text-gray-400 uppercase">Slot ${i}</span>
-                <span ${handler} class="${style}">${val}</span>
-            </div>`;
+            h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600"><span class="text-[10px] font-bold text-gray-400 uppercase">Slot ${i}</span><span ${handler} class="${style}">${val}</span></div>`;
         }
         document.getElementById('lBody').innerHTML = h;
     }
@@ -316,34 +279,15 @@
         const name = document.getElementById('pName').value.trim();
         const id = document.getElementById('pID').value.trim();
         const exp = document.getElementById('pExp').value.trim();
-        if(!name || !id || !exp) return alert("બધી વિગતો ભરો (નામ, ID, અનુભવ)!");
+        if(!name || !id || !exp) return alert("બધી વિગતો ભરો!");
         profDB.push({ name, id, mob: document.getElementById('pMobile').value, exp: exp });
         alert("પ્રોફાઇલ સેવ થઈ ગઈ!");
-        document.getElementById('pName').value = ""; document.getElementById('pID').value = ""; document.getElementById('pExp').value = "";
         showSection('dutySection');
-    }
-
-    // PDF and Search functions
-    function loadFullDutyRecords() {
-        const cont = document.getElementById('fullDutyCont');
-        const sDate = document.getElementById('fStart').value;
-        const eDate = document.getElementById('fEnd').value;
-        cont.innerHTML = "";
-        let rows = [];
-        Object.keys(appData).forEach(k => {
-            const p = k.split('_');
-            if(p.length === 4 && appData[k] !== "---") {
-                if ((!sDate || p[0] >= sDate) && (!eDate || p[0] <= eDate)) 
-                    rows.push({ d: p[0], dep: p[1], sl: p[2], sh: p[3], n: appData[k] });
-            }
-        });
-        rows.sort((a,b) => new Date(b.d) - new Date(a.d)).forEach(r => {
-            cont.innerHTML += `<tr class="border-b"><td class="p-3">${r.d}</td><td class="p-3">${r.n}</td><td class="p-3">${r.dep}</td><td class="p-3">${r.sh}</td></tr>`;
-        });
     }
 
     function toggleShift() { shift = (shift === "Day") ? "Night" : "Day"; document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙"; refreshData(); }
     function refreshData() { selDate = document.getElementById('dateInput').value; if(!document.getElementById('listPage').classList.contains('hidden')) openSlots(document.getElementById('lTitle').innerText); }
+    
     function searchName() {
         const q = document.getElementById('searchBar').value.toLowerCase();
         let foundDep = "";
@@ -354,7 +298,7 @@
         resDiv.innerHTML = foundDep ? `✅ તમારી ડ્યુટી ${foundDep} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
         resDiv.className = `p-4 rounded-2xl font-bold text-center ${foundDep?'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`;
     }
-    
+
     function loadStaffRecords() {
         const cont = document.getElementById('staffListCont');
         profDB.once('value', (s) => {
@@ -363,6 +307,23 @@
             Object.values(data).forEach(x => {
                 cont.innerHTML += `<tr class="border-b"><td class="p-3">${x.id}</td><td class="p-3 uppercase">${x.name}</td><td class="p-3">${x.mob}</td><td class="p-3">${x.exp}</td></tr>`;
             });
+        });
+    }
+
+    function loadFullDutyRecords() {
+        const cont = document.getElementById('fullDutyCont');
+        const sDate = document.getElementById('fStart').value;
+        const eDate = document.getElementById('fEnd').value;
+        cont.innerHTML = "";
+        let rows = [];
+        Object.keys(appData).forEach(k => {
+            const p = k.split('_');
+            if(p.length === 4 && appData[k] !== "---") {
+                if ((!sDate || p[0] >= sDate) && (!eDate || p[0] <= eDate)) rows.push({ d: p[0], dep: p[1], sl: p[2], sh: p[3], n: appData[k] });
+            }
+        });
+        rows.sort((a,b) => new Date(b.d) - new Date(a.d)).forEach(r => {
+            cont.innerHTML += `<tr class="border-b"><td class="p-3">${r.d}</td><td class="p-3">${r.n}</td><td class="p-3">${r.dep}</td><td class="p-3">${r.sh}</td></tr>`;
         });
     }
 </script>
