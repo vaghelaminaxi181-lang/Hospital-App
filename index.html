@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sanskardham Hospital | Vision v2.0</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-    
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
@@ -21,11 +21,11 @@
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
         .overlay.active { display: block; }
         .btn-active:active { transform: scale(0.95); }
-        
-        .suggestion-box { position: absolute; width: 100%; background: white; border: 2px solid #e2e8f0; border-radius: 15px; max-height: 220px; overflow-y: auto; z-index: 3000; box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1); margin-top: 5px; }
-        .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
-        .suggestion-item:hover { background-color: #eff6ff; }
-        .exp-tag { font-size: 9px; background: #dbeafe; color: #1e40af; padding: 3px 10px; border-radius: 50px; font-weight: 800; text-transform: uppercase; }
+        .dept-card { transition: all 0.3s ease; border: 1px solid #f1f5f9; }
+        .dept-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.1); }
+        .suggestion-box { position: absolute; width: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 12px; max-height: 150px; overflow-y: auto; z-index: 3000; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .suggestion-item { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 13px; }
+        .suggestion-item:hover { background-color: #eff6ff; color: #1e40af; }
     </style>
 </head>
 <body>
@@ -35,28 +35,27 @@
 <div id="sidebar" class="sidebar p-6 flex flex-col">
     <div class="mb-8 border-b pb-4">
         <h2 class="text-xl font-black text-blue-900">SANSKARDHAM</h2>
-        <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Navigation</p>
+        <p data-key="nav" class="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Navigation</p>
     </div>
     <nav class="space-y-2 flex-grow">
-        <button onclick="showSection('profileSection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>👤</span> <span>Add Staff</span></button>
-        <button onclick="showSection('dutySection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>📅</span> <span>Duty Board</span></button>
+        <button onclick="showSection('profileSection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><i data-lucide="user-circle" class="w-5 h-5"></i> <span data-key="myProfile">My Profile</span></button>
+        <button onclick="showSection('dutySection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><i data-lucide="calendar-range" class="w-5 h-5"></i> <span data-key="dutyBoard">Duty Board</span></button>
         
         <div id="adminMenu" class="hidden pt-4 border-t mt-4 space-y-2">
-            <p class="text-[9px] font-bold text-blue-600 uppercase px-4">Admin Panel</p>
-            <button onclick="showSection('deptManageSection'); renderDeptManager();" class="w-full text-left p-4 rounded-xl bg-purple-50 text-purple-700 flex items-center space-x-3 font-bold"><span>🏢</span> <span>Departments</span></button>
-            <button onclick="showSection('staffListSection'); loadStaffRecords();" class="w-full text-left p-4 rounded-xl bg-blue-50 text-blue-700 flex items-center space-x-3 font-bold"><span>📋</span> <span>Staff Records</span></button>
-            <button onclick="showSection('fullDutySection'); loadFullDutyRecords();" class="w-full text-left p-4 rounded-xl bg-blue-600 text-white flex items-center space-x-3 font-bold shadow-md"><span>📝</span> <span>Full Duty List</span></button>
+            <p data-key="adminPanel" class="text-[9px] font-bold text-blue-600 uppercase px-4">Admin Panel</p>
+            <button onclick="showSection('staffListSection'); loadStaffRecords();" class="w-full text-left p-4 rounded-xl bg-blue-50 text-blue-700 flex items-center space-x-3 font-bold"><i data-lucide="users" class="w-5 h-5"></i> <span data-key="staffRecords">Staff Records</span></button>
+            <button onclick="showSection('fullDutySection'); loadFullDutyRecords();" class="w-full text-left p-4 rounded-xl bg-blue-600 text-white flex items-center space-x-3 font-bold shadow-md"><i data-lucide="clipboard-list" class="w-5 h-5"></i> <span data-key="fullDutyList">Full Duty List</span></button>
         </div>
     </nav>
-    <button onclick="location.reload()" class="p-4 bg-red-50 rounded-xl font-bold text-red-500 text-xs text-center uppercase">Logout</button>
+    <button onclick="toggleLanguage()" class="mb-2 p-3 bg-blue-100 rounded-xl font-bold text-blue-700 text-xs text-center uppercase">🌐 English / ગુજરાતી</button>
+    <button onclick="location.reload()" data-key="logout" class="p-4 bg-red-50 rounded-xl font-bold text-red-500 text-xs text-center uppercase">Logout</button>
 </div>
 
 <div class="max-w-md mx-auto min-h-screen flex flex-col bg-white shadow-2xl relative">
     <header class="gradient-header text-white p-6 rounded-b-[40px] sticky top-0 z-50 shadow-lg">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-4">
-                <button id="menuBtn" onclick="toggleMenu()" class="text-2xl hidden">☰</button>
-                <button id="backBtn" onclick="showSection('dutySection')" class="text-2xl hidden">⬅</button>
+                <button id="menuBtn" onclick="toggleMenu()" class="text-2xl hidden"><i data-lucide="menu"></i></button>
                 <div>
                     <h1 class="text-xl font-black uppercase leading-none">Sanskardham</h1>
                     <p class="text-[9px] font-bold text-blue-200 tracking-widest uppercase">Vision v2.0</p>
@@ -66,104 +65,83 @@
         </div>
         <div id="dateArea" class="hidden mt-4 flex items-center bg-black/10 rounded-2xl px-4 py-2">
             <input type="date" id="dateInput" onchange="refreshData()" class="bg-transparent text-white font-bold outline-none text-sm w-full">
-            <button onclick="toggleShift()" id="shiftIco" class="ml-2 bg-white/20 p-1 rounded-lg text-lg">☀️</button>
+            <button onclick="toggleShift()" id="shiftIco" class="ml-2 bg-white/20 p-1 rounded-lg">☀️</button>
         </div>
     </header>
 
     <main class="flex-grow p-4">
-        <div id="loginPage" class="flex flex-col justify-center space-y-5 py-10">
+        <div id="loginPage" class="flex flex-col justify-center space-y-5 py-20">
             <div class="text-center">
-                <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-inner">🏥</div>
-                <h2 class="text-2xl font-black text-gray-800">Staff Portal</h2>
+                <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner"><i data-lucide="hospital" class="w-10 h-10 text-blue-600"></i></div>
+                <h2 data-key="staffPortal" class="text-2xl font-black text-gray-800 tracking-tight">Staff Portal</h2>
             </div>
             <div class="space-y-3">
-                <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border outline-none text-center font-bold focus:ring-2 focus:ring-blue-600">
-                <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border outline-none text-center font-bold focus:ring-2 focus:ring-blue-600">
+                <input type="text" id="loginID" data-placeholder="userId" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold focus:ring-2 focus:ring-blue-600">
+                <input type="password" id="loginPass" data-placeholder="password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold focus:ring-2 focus:ring-blue-600">
             </div>
-            <button onclick="login()" class="w-full gradient-header text-white p-5 rounded-2xl font-bold uppercase tracking-widest shadow-xl btn-active">Login</button>
+            <button onclick="login()" data-key="login" class="w-full gradient-header text-white p-5 rounded-2xl font-bold btn-active shadow-xl uppercase tracking-widest">Login</button>
         </div>
 
         <div id="dutySection" class="hidden space-y-6">
             <div class="relative">
-                <input type="text" id="searchBar" onkeyup="searchName()" placeholder="નામથી ડ્યુટી શોધો..." class="w-full p-4 pl-12 rounded-2xl border font-bold shadow-sm outline-none focus:border-blue-500">
-                <span class="absolute left-4 top-4">🔍</span>
+                <input type="text" id="searchBar" onkeyup="searchName()" data-placeholder="searchDutyPlaceholder" class="w-full p-4 pl-12 rounded-2xl border border-gray-100 shadow-sm outline-none font-bold">
+                <i data-lucide="search" class="absolute left-4 top-4 text-gray-400 w-5 h-5"></i>
             </div>
             <div id="searchRes" class="hidden p-4 rounded-2xl font-bold text-center"></div>
             <div id="deptGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
-        <div id="deptManageSection" class="hidden space-y-4">
-            <h2 class="text-2xl font-black text-blue-900 px-2">Manage Departments</h2>
-            <div class="bg-white p-4 rounded-[30px] border shadow-sm">
-                <div class="flex flex-col space-y-3">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">નવો વિભાગ ઉમેરો</label>
-                    <div class="flex flex-wrap gap-2">
-                        <input type="text" id="newDeptInput" placeholder="દા.ત. ADMIT" class="flex-1 min-w-[150px] p-4 bg-gray-50 rounded-2xl font-bold border outline-none uppercase text-blue-900 focus:border-blue-500 text-sm">
-                        <button onclick="addDepartment()" class="bg-blue-600 text-white px-6 py-4 rounded-2xl font-black shadow-lg btn-active">ADD</button>
-                    </div>
-                </div>
-                <div class="mt-8">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">ચાલુ વિભાગો</p>
-                    <div id="deptListItems" class="space-y-3"></div>
-                </div>
+        <div id="staffListSection" class="hidden space-y-4">
+            <div class="bg-white p-4 rounded-3xl shadow-sm border border-blue-50 space-y-3">
+                <h2 data-key="staffRecords" class="text-2xl font-black text-blue-900">Staff Records</h2>
+                <input type="text" id="staffSearch" onkeyup="filterStaffTable()" data-placeholder="searchPlaceholder" class="w-full p-3 bg-gray-50 rounded-xl text-xs font-bold border outline-none">
+            </div>
+            <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-blue-50">
+                <table class="w-full text-left border-collapse min-w-[500px]">
+                    <thead class="bg-blue-50 text-blue-800 text-[10px] uppercase font-black">
+                        <tr><th class="p-3">ID</th><th data-key="tName" class="p-3">Name</th><th data-key="tMobile" class="p-3">Mobile</th><th data-key="tExp" class="p-3">Exp</th></tr>
+                    </thead>
+                    <tbody id="staffListCont" class="text-[11px] font-bold text-gray-700"></tbody>
+                </table>
             </div>
         </div>
 
-        <div id="staffListSection" class="hidden space-y-4">
-            <h2 class="text-2xl font-black text-blue-900 px-2">Staff Records</h2>
-            <div class="bg-white p-4 rounded-3xl shadow-sm border space-y-3">
-                <input type="text" id="staffSearch" onkeyup="filterStaffTable()" placeholder="નામ શોધો..." class="w-full p-3 bg-gray-50 rounded-xl text-xs font-bold border outline-none">
-                <button onclick="downloadStaffPDF()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold uppercase text-[10px] shadow-md btn-active">Download Staff List PDF</button>
+        <div id="fullDutySection" class="hidden space-y-4">
+             <div class="bg-white p-4 rounded-3xl shadow-sm border border-blue-50 space-y-3">
+                <h2 data-key="dutyReport" class="text-xl font-black text-blue-900 uppercase italic">Duty Report</h2>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="date" id="fStart" class="p-2 bg-gray-50 border rounded-xl text-xs font-bold">
+                    <input type="date" id="fEnd" class="p-2 bg-gray-50 border rounded-xl text-xs font-bold">
+                </div>
+                <button onclick="loadFullDutyRecords()" data-key="filterList" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold text-xs uppercase">Filter</button>
             </div>
-            <div class="bg-white rounded-2xl border overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-blue-50 text-[10px] font-black uppercase">
-                        <tr><th class="p-4">Staff Name</th><th class="p-4">Exp</th><th class="p-4 text-center">Action</th></tr>
+            <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-blue-50">
+                <table class="w-full text-left border-collapse min-w-[450px]">
+                    <thead class="bg-slate-100 text-blue-900 text-[10px] uppercase font-black">
+                        <tr><th data-key="tDate" class="p-3">Date</th><th data-key="tName" class="p-3">Staff</th><th data-key="tDept" class="p-3">Dept</th><th data-key="tShift" class="p-3">Shift</th></tr>
                     </thead>
-                    <tbody id="staffListCont" class="text-[11px] font-bold"></tbody>
+                    <tbody id="fullDutyCont" class="text-[11px] font-bold text-gray-700"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="profileSection" class="hidden space-y-4">
-            <h2 id="formTitle" class="text-2xl font-black text-blue-900">Add New Staff</h2>
-            <div class="bg-white p-6 rounded-3xl border space-y-4 shadow-sm">
-                <input type="hidden" id="editStaffKey">
-                <input type="text" id="pName" placeholder="Full Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
-                <input type="text" id="pID" placeholder="ID Number" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
-                <input type="number" id="pMobile" placeholder="Mobile" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
-                <input type="text" id="pExp" placeholder="Experience (OPD, Admit, etc.)" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
-                <button id="saveStaffBtn" onclick="saveProfile()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold shadow-lg uppercase">SAVE STAFF</button>
-                <button id="cancelEditBtn" onclick="resetStaffForm(); showSection('staffListSection');" class="hidden w-full bg-gray-100 text-gray-500 p-4 rounded-2xl font-bold">CANCEL</button>
+            <h2 data-key="myProfile" class="text-2xl font-black text-blue-900">My Profile</h2>
+            <div class="bg-white p-6 rounded-3xl border border-blue-50 shadow-sm space-y-4">
+                <input type="text" id="pName" data-placeholder="fullName" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
+                <input type="text" id="pID" data-placeholder="idNumber" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
+                <button onclick="saveProfile()" data-key="saveProfile" class="w-full gradient-header text-white p-4 rounded-2xl font-bold uppercase">Save</button>
             </div>
         </div>
 
         <div id="listPage" class="hidden space-y-4">
+            <button onclick="showSection('dutySection')" data-key="backBtn" class="text-blue-600 font-bold text-xs flex items-center"><i data-lucide="chevron-left" class="w-4 h-4 mr-1"></i> BACK</button>
             <div class="text-center bg-blue-50 py-4 rounded-3xl">
-                <h2 id="lTitle" class="text-2xl font-black text-blue-900 uppercase"></h2>
-                <p id="lSub" class="text-[10px] font-bold text-blue-400 mt-1"></p>
+                <h2 id="lTitle" class="text-2xl font-black text-blue-900 uppercase italic"></h2>
+                <p id="lSub" class="text-[10px] font-bold text-blue-400 tracking-[3px] mt-1"></p>
             </div>
             <div id="lBody" class="space-y-3"></div>
         </div>
-
-        <div id="fullDutySection" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-3xl border shadow-sm space-y-3">
-                <h2 class="text-xl font-black text-blue-900 uppercase">Duty Report</h2>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><label class="text-[9px] font-bold text-gray-400">START</label><input type="date" id="fStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
-                    <div><label class="text-[9px] font-bold text-gray-400">END</label><input type="date" id="fEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
-                </div>
-                <button onclick="loadFullDutyRecords()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold uppercase text-[10px]">Generate List</button>
-                <button onclick="downloadDutyPDF()" class="w-full bg-green-600 text-white p-3 rounded-xl font-bold uppercase text-[10px]">Download PDF</button>
-            </div>
-            <div class="bg-white rounded-2xl border overflow-x-auto">
-                <table class="w-full text-left min-w-[400px]">
-                    <thead class="bg-slate-50 text-[10px] font-black uppercase"><tr><th class="p-3">Date</th><th class="p-3">Staff</th><th class="p-3">Dept</th><th class="p-3">Shift</th></tr></thead>
-                    <tbody id="fullDutyCont" class="text-[11px] font-bold"></tbody>
-                </table>
-            </div>
-        </div>
-
     </main>
 
     <footer class="p-4 flex justify-center border-t bg-white">
@@ -172,96 +150,136 @@
 </div>
 
 <div id="rangeModal" class="hidden fixed inset-0 bg-black/70 z-[2000] flex items-center justify-center p-6 backdrop-blur-md">
-    <div class="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl relative">
-        <h3 class="font-black text-center border-b pb-3 mb-5 text-blue-900 uppercase">Set Duty Slot</h3>
+    <div class="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl">
+        <h3 data-key="setDutySlot" class="font-black text-center border-b pb-3 mb-5 text-blue-900 uppercase">Set Duty Slot</h3>
         <div class="space-y-4 mb-6">
             <div class="flex space-x-3">
-                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">START DATE</label><input type="date" id="rStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
-                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">END DATE</label><input type="date" id="rEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
+                <div class="flex-1"><label data-key="startDate" class="text-[9px] font-bold text-gray-400">START</label><input type="date" id="rStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
+                <div class="flex-1"><label data-key="endDate" class="text-[9px] font-bold text-gray-400">END</label><input type="date" id="rEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
             </div>
             <div class="relative">
-                <label class="text-[9px] font-bold text-gray-400 block mb-1">SELECT STAFF</label>
-                <input type="text" id="rStaff" onkeyup="showSuggestions(this.value)" placeholder="નામ ટાઇપ કરો..." autocomplete="off" class="w-full p-4 bg-blue-50 rounded-2xl font-bold text-center outline-none border border-blue-100">
+                <label data-key="tName" class="text-[9px] font-bold text-gray-400">STAFF NAME</label>
+                <input type="text" id="rStaff" onkeyup="showSuggestions(this.value)" data-placeholder="typeHere" class="w-full p-4 bg-blue-50 rounded-2xl font-bold text-center outline-none border border-blue-100">
                 <div id="staffSuggestions" class="suggestion-box hidden"></div>
             </div>
         </div>
         <div class="flex space-x-3">
-            <button onclick="closeModal()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-500 text-xs">CANCEL</button>
-            <button onclick="saveRangeDuty()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-xs uppercase shadow-lg">Save Duty</button>
+            <button onclick="closeModal()" data-key="cancel" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-500 text-xs uppercase">CANCEL</button>
+            <button onclick="saveRangeDuty()" data-key="saveDuty" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-xs uppercase">SAVE</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- DATABASE CONFIG ---
+    // Configuration
     const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref("hospital_v11_final");
     const profDB = firebase.database().ref("staff_profiles");
 
-    let role = "viewer", shift = "Day", selDate = "", appData = {}, editKey = "", allStaffRaw = {};
+    let role = "viewer", shift = "Day", selDate = "", appData = {}, currentLang = "gu", allStaff = [];
 
-    // --- NAVIGATION ---
-    function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+    // Dictionary
+    const translations = {
+        en: {
+            nav: "Navigation", myProfile: "My Profile", dutyBoard: "Duty Board", adminPanel: "Admin Panel", staffRecords: "Staff Records", fullDutyList: "Full Duty List", logout: "Logout", staffPortal: "Staff Portal", userId: "User ID", password: "Password", login: "Login", dutyReport: "Duty Report", startDate: "START DATE", endDate: "END DATE", filterList: "Filter List", tDate: "Date", tName: "Staff Name", tDept: "Dept", tShift: "Shift", tMobile: "Mobile", tExp: "Exp", searchPlaceholder: "Search ID/Name...", fullName: "Full Name", idNumber: "ID Number", saveProfile: "Save Profile", searchDutyPlaceholder: "Search duty by name...", backBtn: "BACK", setDutySlot: "Set Duty Slot", typeHere: "Type staff name...", cancel: "CANCEL", saveDuty: "SAVE DUTY", msgWrongPass: "Incorrect Password!", msgNotFound: "⚠️ Name not found."
+        },
+        gu: {
+            nav: "નેવિગેશન", myProfile: "મારી પ્રોફાઇલ", dutyBoard: "ડ્યુટી બોર્ડ", adminPanel: "એડમિન પેનલ", staffRecords: "સ્ટાફ રેકોર્ડ્સ", fullDutyList: "આખી યાદી", logout: "લોગઆઉટ", staffPortal: "સ્ટાફ પોર્ટલ", userId: "યુઝર ID", password: "પાસવર્ડ", login: "લોગિન", dutyReport: "ડ્યુટી રિપોર્ટ", startDate: "શરૂઆત", endDate: "અંતિમ", filterList: "ફિલ્ટર", tDate: "તારીખ", tName: "સ્ટાફનું નામ", tDept: "વિભાગ", tShift: "શિફ્ટ", tMobile: "મોબાઈલ", tExp: "અનુભવ", searchPlaceholder: "નામ/ID શોધો...", fullName: "પૂરું નામ", idNumber: "ID નંબર", saveProfile: "પ્રોફાઇલ સેવ કરો", searchDutyPlaceholder: "નામથી ડ્યુટી શોધો...", backBtn: "પાછા જાઓ", setDutySlot: "ડ્યુટી સેટ કરો", typeHere: "નામ લખો...", cancel: "રદ કરો", saveDuty: "સેવ કરો", msgWrongPass: "ખોટો પાસવર્ડ!", msgNotFound: "⚠️ નામ મળ્યું નથી."
+        }
+    };
 
-    function showSection(id) { 
-        if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-        const ids = ['loginPage', 'profileSection', 'dutySection', 'listPage', 'staffListSection', 'fullDutySection', 'deptManageSection'];
+    // Modern Icon Logic
+    function getDeptIcon(deptName) {
+        const d = deptName.toUpperCase();
+        if(d.includes("OPD")) return "stethoscope";
+        if(d.includes("EMERGENCY") || d.includes("ER")) return "ambulance";
+        if(d.includes("OFF")) return "moon";
+        if(d.includes("ICU")) return "activity";
+        if(d.includes("OT")) return "scissors";
+        if(d.includes("WARD")) return "bed";
+        return "hospital"; 
+    }
+
+    function toggleLanguage() {
+        currentLang = (currentLang === "en") ? "gu" : "en";
+        updateLanguageUI();
+    }
+
+    function updateLanguageUI() {
+        const t = translations[currentLang];
+        document.querySelectorAll('[data-key]').forEach(el => el.innerText = t[el.getAttribute('data-key')]);
+        document.querySelectorAll('[data-placeholder]').forEach(el => el.placeholder = t[el.getAttribute('data-placeholder')]);
+        lucide.createIcons();
+    }
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+        lucide.createIcons();
+    }
+
+    function showSection(id) {
+        const ids = ['loginPage', 'profileSection', 'dutySection', 'listPage', 'staffListSection', 'fullDutySection'];
         ids.forEach(x => document.getElementById(x).classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
-
-        if(id === 'dutySection') {
-            document.getElementById('menuBtn').classList.remove('hidden');
-            document.getElementById('backBtn').classList.add('hidden');
-        } else if(id !== 'loginPage') {
-            document.getElementById('menuBtn').classList.add('hidden');
-            document.getElementById('backBtn').classList.remove('hidden');
-        }
+        if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
+        lucide.createIcons();
     }
 
     function login() {
         const id = document.getElementById('loginID').value.trim();
         const p = document.getElementById('loginPass').value;
-        if(id === "ssgd" && p === "9099020925") role = "admin";
-        else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else return alert("ખોટો પાસવર્ડ!");
-
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('dateArea').classList.remove('hidden');
-        document.getElementById('roleBadge').classList.remove('hidden');
-        document.getElementById('roleBadge').innerText = role;
-        if(role === 'admin') document.getElementById('adminMenu').classList.remove('hidden');
-        selDate = new Date().toISOString().split('T')[0];
-        document.getElementById('dateInput').value = selDate;
-        showSection('dutySection');
-        syncData();
-        fetchAllStaff();
-    }
-
-    // --- DATA HANDLING ---
-    function syncData() { 
-        db.on('value', (s) => { 
-            appData = s.val() || {}; 
-            if(!appData.Depts) appData.Depts = ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"];
-            renderGrid(); 
-        }); 
+        if(id === "ssgd" && (p === "9099020925" || p === "9712284024")) {
+            role = (p === "9099020925") ? "admin" : "viewer";
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('menuBtn').classList.remove('hidden');
+            document.getElementById('dateArea').classList.remove('hidden');
+            document.getElementById('roleBadge').classList.remove('hidden');
+            document.getElementById('roleBadge').innerText = role;
+            if(role === 'admin') {
+                document.getElementById('adminMenu').classList.remove('hidden');
+                fetchAllStaff();
+            }
+            selDate = new Date().toISOString().split('T')[0];
+            document.getElementById('dateInput').value = selDate;
+            showSection('dutySection');
+            syncData();
+            updateLanguageUI();
+        } else {
+            alert(translations[currentLang].msgWrongPass);
+        }
     }
 
     function fetchAllStaff() {
-        profDB.on('value', (s) => { allStaffRaw = s.val() || {}; });
+        profDB.on('value', (s) => {
+            const data = s.val();
+            allStaff = data ? Object.values(data).map(x => x.name) : [];
+        });
+    }
+
+    function syncData() {
+        db.on('value', (s) => {
+            appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST"] };
+            renderGrid();
+        });
     }
 
     function renderGrid() {
         const grid = document.getElementById('deptGrid');
         grid.innerHTML = "";
-        const depts = appData.Depts || [];
+        const depts = appData.Depts || ["OPD", "EMERGENCY", "OFF LIST"];
         depts.forEach(d => {
+            const icon = getDeptIcon(d);
             grid.innerHTML += `
-                <div onclick="openSlots('${d}')" class="p-6 bg-white rounded-[35px] border border-blue-50 shadow-sm flex flex-col items-center btn-active cursor-pointer">
-                    <span class="text-3xl mb-2">🏥</span>
-                    <span class="font-black text-blue-900 text-xs uppercase">${d}</span>
-                </div>`;
+            <div onclick="openSlots('${d}')" class="dept-card p-6 bg-white rounded-[30px] flex flex-col items-center btn-active cursor-pointer">
+                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-3 text-blue-600">
+                    <i data-lucide="${icon}"></i>
+                </div>
+                <span class="font-black text-blue-900 text-[11px] uppercase text-center">${d}</span>
+            </div>`;
         });
+        lucide.createIcons();
     }
 
     function openSlots(d) {
@@ -274,219 +292,61 @@
             let key = `${selDate}_${d}_${i}_${shift}`;
             let val = appData[key] || "---";
             const handler = role === 'admin' ? `onclick="openRangeModal('${key}')"` : "";
-            h += `
-                <div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Slot ${i}</span>
-                    <span ${handler} class="${role==='admin'?'cursor-pointer text-blue-600 underline font-black':'font-black text-gray-800'}">${val}</span>
-                </div>`;
+            h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600 shadow-sm">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Slot ${i}</span>
+                <span ${handler} class="${role==='admin'?'cursor-pointer text-blue-600 underline font-black':'font-black text-gray-800'}">${val}</span>
+            </div>`;
         }
         document.getElementById('lBody').innerHTML = h;
     }
 
-    // --- STAFF MANAGEMENT ---
-    function saveProfile() {
-        const key = document.getElementById('editStaffKey').value;
-        const data = {
-            name: document.getElementById('pName').value.trim(),
-            id: document.getElementById('pID').value.trim(),
-            mob: document.getElementById('pMobile').value.trim(),
-            exp: document.getElementById('pExp').value.trim()
-        };
-        if(!data.name || !data.exp) return alert("નામ અને અનુભવ જરૂરી છે!");
-
-        if(key) {
-            profDB.child(key).update(data).then(() => { alert("સુધારો થઈ ગયો!"); resetStaffForm(); showSection('staffListSection'); loadStaffRecords(); });
-        } else {
-            profDB.push(data).then(() => { alert("સ્ટાફ સેવ થઈ ગયો!"); resetStaffForm(); showSection('dutySection'); });
-        }
+    function openRangeModal(key) {
+        editKey = key;
+        const parts = key.split('_');
+        document.getElementById('rStaff').value = (appData[key] === "---") ? "" : appData[key];
+        document.getElementById('rStart').value = parts[0];
+        document.getElementById('rEnd').value = parts[0];
+        document.getElementById('rangeModal').classList.remove('hidden');
     }
 
-    function loadStaffRecords() {
-        const cont = document.getElementById('staffListCont');
-        cont.innerHTML = "";
-        Object.keys(allStaffRaw).forEach(key => {
-            const x = allStaffRaw[key];
-            cont.innerHTML += `
-                <tr class="border-b">
-                    <td class="p-4 uppercase text-blue-900">${x.name}</td>
-                    <td class="p-4"><span class="exp-tag">${x.exp}</span></td>
-                    <td class="p-4 flex justify-center space-x-2">
-                        <button onclick="editStaff('${key}')" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-[10px]">EDIT</button>
-                        <button onclick="deleteStaff('${key}')" class="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-[10px]">DEL</button>
-                    </td>
-                </tr>`;
-        });
-    }
+    function closeModal() { document.getElementById('rangeModal').classList.add('hidden'); }
 
-    function editStaff(key) {
-        const s = allStaffRaw[key];
-        document.getElementById('editStaffKey').value = key;
-        document.getElementById('pName').value = s.name;
-        document.getElementById('pID').value = s.id;
-        document.getElementById('pMobile').value = s.mob;
-        document.getElementById('pExp').value = s.exp;
-        document.getElementById('formTitle').innerText = "Edit Staff Details";
-        document.getElementById('saveStaffBtn').innerText = "UPDATE STAFF";
-        document.getElementById('cancelEditBtn').classList.remove('hidden');
-        showSection('profileSection');
-    }
-
-    function deleteStaff(key) {
-        if(confirm("શું તમે આ સ્ટાફને ડિલીટ કરવા માંગો છો?")) profDB.child(key).remove().then(() => loadStaffRecords());
-    }
-
-    function resetStaffForm() {
-        document.getElementById('editStaffKey').value = "";
-        document.getElementById('pName').value = "";
-        document.getElementById('pID').value = "";
-        document.getElementById('pMobile').value = "";
-        document.getElementById('pExp').value = "";
-        document.getElementById('formTitle').innerText = "Add New Staff";
-        document.getElementById('saveStaffBtn').innerText = "SAVE STAFF";
-        document.getElementById('cancelEditBtn').classList.add('hidden');
-    }
-
-    function filterStaffTable() {
-        let input = document.getElementById("staffSearch").value.toUpperCase();
-        let rows = document.getElementById("staffListCont").getElementsByTagName("tr");
-        for (let i = 0; i < rows.length; i++) {
-            rows[i].style.display = (rows[i].textContent.toUpperCase().indexOf(input) > -1) ? "" : "none";
-        }
-    }
-
-    // --- DEPT MANAGEMENT ---
-    function addDepartment() {
-        const input = document.getElementById('newDeptInput');
-        const name = input.value.trim().toUpperCase();
-        if(!name) return;
-        let depts = appData.Depts || [];
-        if(depts.includes(name)) return alert("વિભાગ પહેલેથી છે!");
-        depts.push(name);
-        db.child("Depts").set(depts).then(() => { input.value = ""; renderDeptManager(); });
-    }
-
-    function removeDept(name) {
-        if(confirm(`શું તમે ખરેખર "${name}" વિભાગ કાઢી નાખવા માંગો છો?`)) {
-            let depts = appData.Depts.filter(d => d !== name);
-            db.child("Depts").set(depts).then(() => renderDeptManager());
-        }
-    }
-
-    function renderDeptManager() {
-        const cont = document.getElementById('deptListItems');
-        const depts = appData.Depts || [];
-        cont.innerHTML = depts.map(d => `
-            <div class="flex justify-between items-center p-4 bg-blue-50/50 rounded-2xl border border-blue-100 shadow-sm">
-                <span class="font-bold text-blue-900">${d}</span>
-                <button onclick="removeDept('${d}')" class="text-red-500 font-black text-[10px] bg-red-50 px-3 py-2 rounded-xl">REMOVE</button>
-            </div>
-        `).join('');
-    }
-
-    // --- DUTY ASSIGNMENT ---
-    function openRangeModal(key) { editKey = key; document.getElementById('rStaff').value = (appData[key] === "---") ? "" : appData[key]; document.getElementById('rStart').value = selDate; document.getElementById('rEnd').value = selDate; document.getElementById('rangeModal').classList.remove('hidden'); showSuggestions(""); }
-    function closeModal() { document.getElementById('rangeModal').classList.add('hidden'); document.getElementById('staffSuggestions').classList.add('hidden'); }
-    
-    function showSuggestions(val) {
-        const box = document.getElementById('staffSuggestions');
-        const currentDept = editKey.split('_')[1].toLowerCase();
-        const filtered = Object.values(allStaffRaw).filter(staff => {
-            const hasExp = staff.exp && staff.exp.toLowerCase().includes(currentDept);
-            const matchesSearch = staff.name.toLowerCase().includes(val.toLowerCase());
-            return hasExp && matchesSearch;
-        });
-        if (filtered.length > 0) {
-            box.innerHTML = filtered.map(staff => `<div class="suggestion-item" onclick="selectStaff('${staff.name}')"><span class="staff-name font-bold">${staff.name}</span><span class="exp-tag">${staff.exp}</span></div>`).join('');
-            box.classList.remove('hidden');
-        } else {
-            box.innerHTML = `<div class="p-4 text-center text-gray-400 text-xs">કોઈ સ્ટાફ મળ્યો નથી.</div>`;
-            box.classList.remove('hidden');
-        }
-    }
-
-    function selectStaff(name) { document.getElementById('rStaff').value = name; document.getElementById('staffSuggestions').classList.add('hidden'); }
-    
     function saveRangeDuty() {
         const name = document.getElementById('rStaff').value.trim() || "---";
         const start = new Date(document.getElementById('rStart').value);
         const end = new Date(document.getElementById('rEnd').value);
-        const parts = editKey.split('_'); 
+        const parts = editKey.split('_');
         let updates = {};
         let temp = new Date(start);
         while(temp <= end) {
-            let k = `${temp.toISOString().split('T')[0]}_${parts[1]}_${parts[2]}_${parts[3]}`;
+            let dStr = temp.toISOString().split('T')[0];
+            let k = `${dStr}_${parts[1]}_${parts[2]}_${parts[3]}`;
             updates[k] = name;
             temp.setDate(temp.getDate() + 1);
         }
         db.update(updates).then(() => { closeModal(); openSlots(parts[1]); });
     }
 
-    // --- REPORTS ---
-    function loadFullDutyRecords() {
-        const cont = document.getElementById('fullDutyCont');
-        const sDate = document.getElementById('fStart').value;
-        const eDate = document.getElementById('fEnd').value;
-        cont.innerHTML = "";
-        let rows = [];
-        Object.keys(appData).forEach(k => {
-            const p = k.split('_');
-            if(p.length === 4 && appData[k] !== "---") {
-                if ((!sDate || p[0] >= sDate) && (!eDate || p[0] <= eDate)) 
-                rows.push({ d: p[0], dep: p[1], sl: p[2], sh: p[3], n: appData[k] });
-            }
-        });
-        rows.sort((a,b) => new Date(b.d) - new Date(a.d)).forEach(r => {
-            cont.innerHTML += `<tr class="border-b"><td class="p-3">${r.d}</td><td class="p-3">${r.n}</td><td class="p-3">${r.dep}</td><td class="p-3">${r.sh}</td></tr>`;
-        });
+    function showSuggestions(val) {
+        const box = document.getElementById('staffSuggestions');
+        if (!val) { box.classList.add('hidden'); return; }
+        const filtered = allStaff.filter(name => name.toLowerCase().includes(val.toLowerCase()));
+        if (filtered.length > 0) {
+            box.innerHTML = filtered.map(name => `<div class="suggestion-item" onclick="selectStaff('${name}')">${name}</div>`).join('');
+            box.classList.remove('hidden');
+        } else { box.classList.add('hidden'); }
     }
+    function selectStaff(name) { document.getElementById('rStaff').value = name; document.getElementById('staffSuggestions').classList.add('hidden'); }
 
-    // PDF 1: Duty Report
-    function downloadDutyPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const sDate = document.getElementById('fStart').value || "All";
-        const eDate = document.getElementById('fEnd').value || "All";
-        doc.setFontSize(18);
-        doc.text("Sanskardham Hospital - Duty Report", 14, 20);
-        doc.setFontSize(10);
-        doc.text(`Period: ${sDate} to ${eDate}`, 14, 30);
-        let rows = [];
-        Object.keys(appData).forEach(k => {
-            const p = k.split('_');
-            if(p.length === 4 && appData[k] !== "---") {
-                if ((!sDate || sDate === "All" || p[0] >= sDate) && (!eDate || eDate === "All" || p[0] <= eDate)) 
-                rows.push([p[0], appData[k].toUpperCase(), p[1], p[3]]);
-            }
-        });
-        rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
-        doc.autoTable({ startY: 40, head: [['Date', 'Staff Name', 'Department', 'Shift']], body: rows, headStyles: { fillColor: [30, 58, 138] } });
-        doc.save(`Duty_Report_${sDate}.pdf`);
+    function toggleShift() {
+        shift = (shift === "Day") ? "Night" : "Day";
+        document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙";
+        refreshData();
     }
-
-    // PDF 2: Staff List
-    function downloadStaffPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.setTextColor(30, 58, 138);
-        doc.text("Sanskardham Hospital - Staff Records", 14, 20);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Total Staff: ${Object.keys(allStaffRaw).length}`, 14, 28);
-        let rows = [];
-        Object.keys(allStaffRaw).forEach(key => {
-            const s = allStaffRaw[key];
-            rows.push([s.name.toUpperCase(), s.id || "N/A", s.mob || "N/A", s.exp.toUpperCase()]);
-        });
-        rows.sort((a, b) => a[0].localeCompare(b[0]));
-        doc.autoTable({ startY: 35, head: [['Staff Name', 'Staff ID', 'Mobile', 'Experience']], body: rows, theme: 'striped', headStyles: { fillColor: [79, 70, 229] } });
-        doc.save(`Staff_List_${new Date().toISOString().split('T')[0]}.pdf`);
+    function refreshData() {
+        selDate = document.getElementById('dateInput').value;
+        if(!document.getElementById('listPage').classList.contains('hidden')) openSlots(document.getElementById('lTitle').innerText);
     }
-
-    // --- HELPERS ---
-    function toggleShift() { shift = (shift === "Day") ? "Night" : "Day"; document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙"; refreshData(); }
-    function refreshData() { selDate = document.getElementById('dateInput').value; if(!document.getElementById('listPage').classList.contains('hidden')) openSlots(document.getElementById('lTitle').innerText); }
-    
     function searchName() {
         const q = document.getElementById('searchBar').value.toLowerCase();
         let foundDep = "";
@@ -494,9 +354,12 @@
         for(let k in appData) { if(k.startsWith(selDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) { foundDep = k.split('_')[1]; break; } }
         const resDiv = document.getElementById('searchRes');
         resDiv.classList.remove('hidden');
-        resDiv.innerHTML = foundDep ? `✅ તમારી ડ્યુટી ${foundDep} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
+        resDiv.innerHTML = foundDep ? `✅ ${translations[currentLang].msgDutyIn || 'Duty in'} ${foundDep}` : translations[currentLang].msgNotFound;
         resDiv.className = `p-4 rounded-2xl font-bold text-center ${foundDep?'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`;
     }
+
+    // Load Icons
+    lucide.createIcons();
 </script>
 </body>
 </html>
