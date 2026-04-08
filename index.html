@@ -3,287 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanskardham Hospital | Vision v2.1</title>
+    <title>SANSKARDHAM VISION V2.0</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; touch-action: manipulation; }
-        .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
-        .btn-active:active { transform: scale(0.95); transition: 0.1s; }
-        .main-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; height: 120px; }
-        .download-fab { position: fixed; bottom: 85px; right: 20px; z-index: 100; }
-        .suggestion-chip { cursor: pointer; transition: 0.2s; }
-        .suggestion-chip:active { transform: scale(0.9); }
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f7fe; touch-action: manipulation; }
+        .vision-blue { background: linear-gradient(180deg, #1e40af 0%, #3b82f6 100%); }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08); }
+        
+        /* NO MORE BROWSER POPS - Custom Toast */
+        #toast { visibility: hidden; min-width: 280px; background: rgba(0,0,0,0.85); color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 1000; left: 50%; bottom: 100px; transform: translateX(-50%); font-weight: 600; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); }
+        #toast.show { visibility: visible; animation: fadeInOut 2.8s; }
+        @keyframes fadeInOut { 0% { opacity: 0; bottom: 70px; } 15% { opacity: 1; bottom: 100px; } 85% { opacity: 1; bottom: 100px; } 100% { opacity: 0; bottom: 70px; } }
+
+        /* Notice Board Style */
+        .msg-bubble { max-width: 85%; padding: 14px; border-radius: 20px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
+        .msg-admin { background: #eef2ff; color: #1e40af; border-bottom-left-radius: 4px; border: 1px solid #e0e7ff; }
+        .file-link { background: #fff; padding: 8px; border-radius: 12px; display: block; margin-top: 8px; text-decoration: none; border: 1px dashed #3b82f6; }
     </style>
 </head>
 <body>
 
-<div class="max-w-md mx-auto min-h-screen flex flex-col bg-white relative shadow-2xl overflow-x-hidden">
-    
-    <header class="gradient-header text-white p-5 rounded-b-[35px] shadow-lg sticky top-0 z-50">
-        <div class="flex justify-between items-center mb-1">
-            <h1 class="text-xl font-black tracking-tighter uppercase">Sanskardham</h1>
-            <div id="roleBadge" class="hidden bg-white/20 px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase">Guest</div>
-        </div>
-        <div id="dateArea" class="hidden flex items-center bg-black/10 rounded-xl px-3 py-1.5 mt-2">
-            <span class="text-xs mr-2">📅</span>
-            <input type="date" id="dateInput" onchange="refreshAll()" class="bg-transparent text-white font-bold outline-none text-xs w-full">
-            <button onclick="toggleShift()" id="shiftIco" class="ml-2 bg-white/20 px-2 py-1 rounded text-sm">☀️</button>
-        </div>
-    </header>
+<div id="toast">સંદેશ...</div>
 
-    <div id="loginPage" class="p-8 flex-grow flex flex-col justify-center space-y-4">
-        <div class="text-center mb-4"><span class="text-5xl">🏥</span></div>
-        <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
-        <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
-        <button onclick="login()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold btn-active uppercase">Login</button>
+<div class="max-w-md mx-auto min-h-screen bg-white shadow-2xl relative flex flex-col overflow-hidden">
+
+    <div id="loginPage" class="absolute inset-0 z-[100] bg-white flex flex-col items-center justify-center p-10 transition-all">
+        <div class="w-20 h-20 bg-blue-50 rounded-[2rem] flex items-center justify-center mb-6 text-4xl shadow-inner border border-blue-100">🏥</div>
+        <h2 class="text-3xl font-black text-blue-900 italic uppercase tracking-tighter">Vision V2.0</h2>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[4px] mb-12">Sanskar Dham Hospital</p>
+        <div class="w-full space-y-4">
+            <input type="password" id="l_pass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 outline-none text-center font-bold text-blue-900 focus:border-blue-500 transition-all">
+            <button onclick="handleLogin()" class="w-full vision-blue text-white p-4 rounded-2xl font-black tracking-widest shadow-xl active:scale-95 transition-all">LOG IN</button>
+        </div>
     </div>
 
-    <div id="mainMenu" class="hidden p-5 space-y-4 flex-grow">
-        <h3 class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Main Menu</h3>
-        <div class="grid grid-cols-2 gap-3">
-            <div onclick="showDutySection()" class="main-card p-4 bg-white rounded-[25px] flex flex-col items-center justify-center btn-active cursor-pointer border-blue-50 border-2 shadow-sm">
-                <span class="text-3xl mb-1">📅</span>
-                <span class="font-black text-slate-700 text-[10px] uppercase">Duty List</span>
+    <div id="appBody" class="hidden flex flex-col flex-grow">
+        
+        <div class="vision-blue text-white p-6 pb-14 rounded-b-[50px] shadow-lg sticky top-0 z-50">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col">
+                    <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">SANSKARDHAM</h1>
+                    <span id="roleTag" class="text-[9px] font-black opacity-60 tracking-[2px] mt-1 italic">...</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleShift()" id="shiftBtn" class="bg-white/20 p-2.5 rounded-2xl text-lg shadow-inner border border-white/10 active:scale-90 transition-all">☀️</button>
+                    <button onclick="location.reload()" class="bg-white/20 p-2.5 rounded-2xl text-lg shadow-inner border border-white/10 active:rotate-180 transition-all">🔄</button>
+                </div>
             </div>
-            <div onclick="showProfileSection()" class="main-card p-4 bg-white rounded-[25px] flex flex-col items-center justify-center btn-active cursor-pointer border-green-50 border-2 shadow-sm">
-                <span class="text-3xl mb-1">👤</span>
-                <span class="font-black text-slate-700 text-[10px] uppercase text-center leading-tight">My Profile<br><span class="text-[8px] opacity-40 font-normal">(Experience)</span></span>
-            </div>
-        </div>
-    </div>
-
-    <div id="profileSection" class="hidden p-5 space-y-5 flex-grow">
-        <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] uppercase tracking-tighter">⬅ Back to Menu</button>
-        <div class="bg-blue-50 p-5 rounded-[30px] space-y-3 shadow-inner">
-            <h2 class="text-sm font-black text-blue-900 uppercase">Staff Experience Details</h2>
-            <input type="text" id="profName" placeholder="તમારું આખું નામ" class="w-full p-3 rounded-xl border-none outline-none text-sm font-bold shadow-sm">
-            <input type="text" id="profID" placeholder="તમારો રોલ નંબર / ID" class="w-full p-3 rounded-xl border-none outline-none text-sm font-bold shadow-sm">
-            <select id="profExp" class="w-full p-3 rounded-xl border-none outline-none text-sm font-bold shadow-sm bg-white">
-                <option value="">અનુભવનો વિભાગ પસંદ કરો</option>
-                <option value="OPD">OPD</option>
-                <option value="EMERGENCY">EMERGENCY</option>
-                <option value="ORTHOPEDIC">ORTHOPEDIC</option>
-                <option value="ICU">ICU</option>
-                <option value="WARD">WARD</option>
-            </select>
-            <button onclick="saveProfile()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold btn-active uppercase text-xs">Save Details</button>
-        </div>
-        <p class="text-[9px] text-gray-400 italic text-center font-bold tracking-tight px-4">* અહીં માહિતી ભરવાથી એડમિન જ્યારે તે વિભાગમાં ડ્યુટી નાખશે ત્યારે તમારું નામ ઉપર બતાવશે.</p>
-    </div>
-
-    <div id="dutySection" class="hidden p-5 space-y-4 flex-grow pb-32">
-        <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] flex items-center uppercase tracking-tighter">⬅ Back to Menu</button>
-        <div class="relative">
-            <input type="text" id="searchBar" onkeyup="doSearch()" placeholder="તમારી ડ્યુટી શોધો..." class="w-full p-3.5 pl-10 rounded-2xl bg-white shadow-sm border border-gray-100 outline-none text-sm font-bold">
-            <span class="absolute left-3.5 top-3.5 text-lg">🔍</span>
-        </div>
-        <div id="searchBox" class="hidden p-4 rounded-2xl border-2 font-bold text-center text-sm"></div>
-        <div id="deptGrid" class="grid grid-cols-2 gap-3"></div>
-    </div>
-
-    <div id="listPage" class="hidden p-5 flex-grow pb-32">
-        <button onclick="backToDuty()" class="text-blue-600 font-bold text-[10px] mb-4 flex items-center uppercase tracking-tighter">⬅ Back to Duty List</button>
-        <div class="text-center mb-6">
-            <h2 id="lTitle" class="text-2xl font-black text-gray-800 uppercase italic"></h2>
-            <p id="lSub" class="text-[9px] font-bold text-gray-400 uppercase tracking-[3px] mt-1"></p>
-        </div>
-        <div id="lBody" class="space-y-2.5"></div>
-    </div>
-
-    <div id="downloadAction" class="hidden download-fab flex flex-col items-center">
-        <button onclick="generateFullPDF()" class="bg-blue-700 text-white p-4 rounded-full shadow-2xl btn-active border-4 border-white">
-            <span class="text-2xl">📥</span>
-        </button>
-    </div>
-
-    <div id="editModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-6 backdrop-blur-sm">
-        <div class="bg-white w-full rounded-[40px] p-6 shadow-2xl modal-anim">
-            <h3 id="editDeptLabel" class="font-black text-gray-800 mb-2 text-center uppercase text-sm tracking-widest border-b pb-1"></h3>
-            <div id="suggestionArea" class="mb-4">
-                <p class="text-[8px] font-bold text-blue-600 uppercase mb-2 tracking-widest">Recommended Staff (Experienced):</p>
-                <div id="suggestionList" class="flex flex-wrap gap-2">
-                    </div>
-            </div>
-            <input type="text" id="staffInput" placeholder="અથવા અહીં નામ લખો..." class="w-full p-4 bg-gray-100 rounded-2xl outline-none font-bold text-center text-sm border-2 border-transparent focus:border-blue-500">
-            <div class="flex space-x-2 mt-6">
-                <button onclick="closeEdit()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-400 text-[10px]">CANCEL</button>
-                <button onclick="saveSlot()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-[10px]">SAVE</button>
+            <div class="bg-white/10 p-3 rounded-2xl flex items-center border border-white/20 backdrop-blur-md shadow-inner">
+                <span class="mr-3">📅</span>
+                <input type="date" id="appDate" onchange="refreshData()" class="bg-transparent font-bold outline-none text-white text-sm w-full cursor-pointer">
             </div>
         </div>
+
+        <div id="menuView" class="px-6 -mt-8 space-y-6 pb-24">
+            <div onclick="openNotice()" class="w-full bg-orange-500 p-5 rounded-[30px] shadow-lg flex items-center justify-between text-white active:scale-95 cursor-pointer border-b-4 border-orange-700">
+                <div class="flex items-center space-x-4">
+                    <span class="text-2xl">📢</span>
+                    <span class="font-black text-sm uppercase tracking-wider">Notice Board</span>
+                </div>
+                <span class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold">LIVE</span>
+            </div>
+            <div id="gridArea" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <div id="slotView" class="hidden px-6 pt-6 space-y-4 pb-24">
+            <div class="flex justify-between items-center">
+                <button onclick="goHome()" class="text-blue-600 font-bold text-[10px] uppercase bg-blue-50 px-6 py-2.5 rounded-full border border-blue-100 shadow-sm active:scale-95">⬅ Back</button>
+                <button onclick="downloadDuty()" class="bg-green-600 text-white font-bold text-[10px] uppercase px-6 py-2.5 rounded-full shadow-lg active:scale-95 transition-all">📥 Download</button>
+            </div>
+            <div id="captureArea" class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-100">
+                <div class="text-center mb-6 border-b border-dashed pb-4">
+                    <h2 id="vTitle" class="text-3xl font-black text-slate-800 uppercase italic leading-none"></h2>
+                    <p id="vSub" class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2"></p>
+                </div>
+                <div id="slotContainer" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <div id="noticeView" class="hidden flex-grow flex flex-col bg-[#f0f2f5] pb-24">
+            <div class="vision-blue p-4 text-white flex items-center space-x-4 shadow-md">
+                <button onclick="goHome()" class="text-xl px-2">←</button>
+                <div class="flex flex-col">
+                    <span class="font-bold uppercase tracking-wider">Hospital Notices</span>
+                    <span class="text-[8px] opacity-70 italic tracking-widest">Sanskardham Management</span>
+                </div>
+            </div>
+            <div id="noticeList" class="flex-grow p-4 overflow-y-auto flex flex-col space-y-1"></div>
+            
+            <div id="adminPanel" class="hidden p-3 bg-white border-t flex flex-col space-y-2 fixed bottom-0 w-full max-w-md z-50">
+                <div class="flex space-x-2">
+                    <input type="text" id="msgText" placeholder="સૂચના ટાઇપ કરો..." class="flex-grow p-4 bg-gray-100 rounded-2xl outline-none text-sm font-semibold focus:ring-1 focus:ring-blue-400 transition-all">
+                    <button onclick="sendMsg('text')" class="bg-blue-600 text-white p-4 rounded-2xl px-6 font-black text-xs uppercase shadow-md active:scale-90">Send</button>
+                </div>
+                <div class="flex justify-around py-2 border-t mt-1">
+                    <label class="text-[10px] font-black text-blue-600 cursor-pointer flex items-center space-x-1 p-2"><span>📷 PHOTO</span><input type="file" accept="image/*" class="hidden" onchange="handleFile('image', this)"></label>
+                    <label class="text-[10px] font-black text-red-600 cursor-pointer flex items-center space-x-1 p-2"><span>📄 PDF</span><input type="file" accept=".pdf" class="hidden" onchange="handleFile('pdf', this)"></label>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 border-t p-3 flex justify-center z-50">
-        <p class="text-blue-900 font-black text-[8px] tracking-[4px] opacity-40 uppercase tracking-widest">Jatin Solanki By Vision</p>
+    <div id="editModal" class="hidden fixed inset-0 bg-black/70 z-[300] flex items-center justify-center p-8 backdrop-blur-sm">
+        <div class="bg-white w-full rounded-[40px] p-8 shadow-2xl transition-all transform animate-in zoom-in duration-200">
+            <h3 class="font-black text-center mb-6 uppercase text-sm tracking-[3px] text-blue-900 border-b pb-4 italic">Set Duty</h3>
+            <div class="space-y-1 mb-6 text-center">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">સ્ટાફનું નામ લખો</label>
+                <input type="text" id="nameInp" placeholder="..." class="w-full p-5 bg-gray-50 rounded-2xl font-black text-center border-2 border-gray-100 outline-none focus:border-blue-500 transition-all">
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="closeModal()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-400 text-[10px] uppercase tracking-widest">Cancel</button>
+                <button onclick="saveDuty()" class="flex-1 p-4 vision-blue text-white rounded-2xl font-black text-[10px] uppercase shadow-lg tracking-widest">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="fixed bottom-0 w-full max-w-md text-center py-2 bg-white/70 backdrop-blur-sm z-40 border-t">
+        <p class="text-[8px] font-black text-blue-900 opacity-20 tracking-[5px] uppercase">Jatin Solanki By Vision</p>
     </footer>
 </div>
 
 <script>
+    // 1. DATABASE CONFIG
     const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref("hospital_v11_final");
-    const profileDB = firebase.database().ref("hospital_staff_profiles");
+    const nDB = firebase.database().ref("hospital_notices_v2");
 
-    let role = "viewer", shift = "Day", selectedDate = "", appData = {}, staffProfiles = {}, currentEditKey = "";
+    let role = "staff", shift = "Day", date = "", mainData = {}, activeKey = "";
 
-    window.onload = () => {
-        // આજની તારીખ સેટ કરવી
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('dateInput').value = today;
-        selectedDate = today;
-    };
-
-    function login() {
-        const id = document.getElementById('loginID').value.trim();
-        const p = document.getElementById('loginPass').value;
-        if(id === "ssgd" && p === "9099020925") role = "admin";
-        else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else return alert("Invalid Login!");
-
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('mainMenu').classList.remove('hidden');
-        document.getElementById('roleBadge').classList.remove('hidden').innerText = role;
-        startSync();
+    // 2. TOAST MESSAGE (REPLACING ALERTS)
+    function msg(t) {
+        const x = document.getElementById("toast");
+        x.innerText = t; x.className = "show";
+        setTimeout(() => { x.className = ""; }, 2800);
     }
 
-    function startSync() {
-        db.on('value', (s) => appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST"] });
-        profileDB.on('value', (s) => staffProfiles = s.val() || {});
+    // 3. LOGIN & APP INIT
+    function handleLogin() {
+        const pw = document.getElementById('l_pass').value;
+        if (pw === "9099020925") { role = "admin"; launch(); }
+        else if (pw === "9712284024") { role = "staff"; launch(); }
+        else { msg("❌ ખોટો પાસવર્ડ!"); }
     }
 
-    // પ્રોફાઈલ સેવ કરવી
-    function saveProfile() {
-        const name = document.getElementById('profName').value.trim();
-        const sid = document.getElementById('profID').value.trim();
-        const exp = document.getElementById('profExp').value;
-        if(!name || !sid || !exp) return alert("બધી વિગત ભરો!");
+    function launch() {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appBody').classList.remove('hidden');
+        date = new Date().toISOString().split('T')[0];
+        document.getElementById('appDate').value = date;
+        document.getElementById('roleTag').innerText = role === 'admin' ? "👑 ADMIT ACCESS" : "👀 STAFF VIEW";
         
-        profileDB.child(sid).set({ name, exp }).then(() => {
-            alert("✅ પ્રોફાઈલ સેવ થઈ ગઈ!");
-            backToMenu();
+        if(role === 'admin') document.getElementById('adminPanel').classList.remove('hidden');
+        
+        db.on('value', (s) => { 
+            mainData = s.val() || {}; 
+            if(!document.getElementById('slotView').classList.contains('hidden')) {
+                renderSlots(document.getElementById('vTitle').innerText);
+            }
         });
-    }
-
-    // નેવિગેશન
-    function showDutySection() {
-        document.getElementById('mainMenu').classList.add('hidden');
-        document.getElementById('dutySection').classList.remove('hidden');
-        document.getElementById('dateArea').classList.remove('hidden');
         renderGrid();
-    }
-    function showProfileSection() {
-        document.getElementById('mainMenu').classList.add('hidden');
-        document.getElementById('profileSection').classList.remove('hidden');
-    }
-    function backToMenu() {
-        document.querySelectorAll('#dutySection, #profileSection, #listPage, #dateArea').forEach(e => e.classList.add('hidden'));
-        document.getElementById('mainMenu').classList.remove('hidden');
-    }
-    function backToDuty() {
-        document.getElementById('listPage').classList.add('hidden');
-        document.getElementById('dutySection').classList.remove('hidden');
+        msg("✅ લોગિન સફળ!");
     }
 
+    // 4. DUTY FEATURES
     function renderGrid() {
-        const grid = document.getElementById('deptGrid');
-        grid.innerHTML = "";
-        const ds = appData["Depts"] || ["OPD", "EMERGENCY", "OFF LIST"];
-        ds.forEach(d => {
-            grid.innerHTML += `<div onclick="openView('${d}')" class="p-4 bg-white rounded-[25px] border border-slate-100 shadow-sm flex flex-col items-center btn-active">
-                <span class="text-2xl mb-1">${d.includes('OFF')?'😴':'🏥'}</span>
-                <span class="font-bold text-slate-700 text-[9px] uppercase">${d}</span>
-            </div>`;
+        const depts = ["OPD", "OFF LIST", "EMERGENCY", "DAYCARE", "ICU", "WARD"];
+        const icons = {"OPD":"🏥", "OFF LIST":"😴", "EMERGENCY":"🚑", "DAYCARE":"🏥", "ICU":"🏥", "WARD":"🏢"};
+        const area = document.getElementById('gridArea'); area.innerHTML = "";
+        depts.forEach(d => {
+            area.innerHTML += `<div onclick="openDept('${d}')" class="bg-white p-8 rounded-[35px] card-shadow flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all border border-gray-50"><span class="text-4xl mb-3">${icons[d]}</span><span class="font-black text-slate-700 text-[10px] uppercase tracking-widest">${d}</span></div>`;
         });
     }
 
-    function openView(d) {
-        document.getElementById('dutySection').classList.add('hidden');
-        document.getElementById('listPage').classList.remove('hidden');
-        document.getElementById('lTitle').innerText = d;
-        document.getElementById('lSub').innerText = `${shift} | ${selectedDate}`;
-        let h = "";
-        const limit = (d.toUpperCase() === 'OPD') ? 10 : 6;
+    function openDept(d) {
+        document.getElementById('menuView').classList.add('hidden');
+        document.getElementById('slotView').classList.remove('hidden');
+        document.getElementById('vTitle').innerText = d;
+        renderSlots(d);
+    }
+
+    function renderSlots(d) {
+        document.getElementById('vSub').innerText = `${shift.toUpperCase()} SHIFT | ${date}`;
+        const cont = document.getElementById('slotContainer'); cont.innerHTML = "";
+        const limit = (d === "OPD" || d === "WARD") ? 10 : 8;
         for(let i=1; i<=limit; i++) {
-            let key = `${selectedDate}_${d}_${i}_${shift}`;
-            let val = appData[key] || "---";
-            h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
-                <span class="text-[8px] font-bold text-slate-400 uppercase">Slot ${i}</span>
-                <span onclick="${role==='admin'?`openEdit('${key}','${d}')`:''}" class="${role==='admin'?'text-blue-600 font-bold underline italic':'font-bold text-slate-800'}">${val}</span>
+            let k = `${date}_${d}_${i}_${shift}`;
+            let val = mainData[k] || "---";
+            cont.innerHTML += `<div onclick="${role === 'admin' ? `editSlot('${k}')` : ''}" class="p-5 bg-gray-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600 active:bg-blue-100 transition-all shadow-sm">
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Slot ${i}</span>
+                <span class="font-bold text-blue-900">${val}</span>
             </div>`;
         }
-        document.getElementById('lBody').innerHTML = h;
     }
 
-    function openEdit(key, dept) {
-        currentEditKey = key;
-        document.getElementById('editDeptLabel').innerText = dept;
-        document.getElementById('staffInput').value = (appData[key] === "---") ? "" : (appData[key] || "");
-        
-        // સ્માર્ટ સજેશન: જે સ્ટાફને આ વિભાગનો અનુભવ હોય તેમના નામ બતાવશે
-        const list = document.getElementById('suggestionList');
-        list.innerHTML = "";
-        let found = false;
-        Object.values(staffProfiles).forEach(p => {
-            if(p.exp.toUpperCase() === dept.toUpperCase()) {
-                found = true;
-                list.innerHTML += `<div onclick="setStaff('${p.name}')" class="suggestion-chip bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[9px] font-bold border border-blue-200">+ ${p.name}</div>`;
-            }
+    function editSlot(k) { 
+        activeKey = k; 
+        document.getElementById('nameInp').value = (mainData[k] && mainData[k] !== "---") ? mainData[k] : ""; 
+        document.getElementById('editModal').classList.remove('hidden'); 
+    }
+
+    function saveDuty() { 
+        const n = document.getElementById('nameInp').value.trim() || "---";
+        db.child(activeKey).set(n).then(() => { closeModal(); msg("💾 ડ્યુટી સેવ થઈ!"); });
+    }
+
+    function downloadDuty() {
+        msg("📷 ડાઉનલોડ શરૂ...");
+        html2canvas(document.querySelector("#captureArea")).then(canvas => {
+            let link = document.createElement('a'); link.download = `Duty_${date}_${shift}.png`;
+            link.href = canvas.toDataURL(); link.click();
+            msg("📥 ફોટો સેવ થયો!");
         });
-        if(!found) list.innerHTML = "<p class='text-[8px] text-gray-400'>No experienced staff found.</p>";
-
-        document.getElementById('editModal').classList.remove('hidden');
     }
 
-    function setStaff(name) { document.getElementById('staffInput').value = name; }
-    function closeEdit() { document.getElementById('editModal').classList.add('hidden'); }
-    function saveSlot() {
-        db.update({ [currentEditKey]: document.getElementById('staffInput').value.trim() || "---" });
-        closeEdit();
-        openView(currentEditKey.split('_')[1]);
+    // 5. NOTICE BOARD (WHATSAPP STYLE)
+    function openNotice() { 
+        document.getElementById('menuView').classList.add('hidden'); 
+        document.getElementById('noticeView').classList.remove('hidden');
+        nDB.off(); // Reset previous listener
+        listenNotices(); 
     }
 
-    function toggleShift() {
-        shift = (shift === "Day") ? "Night" : "Day";
-        document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙";
-        if(!document.getElementById('listPage').classList.contains('hidden')) openView(document.getElementById('lTitle').innerText);
-    }
-
-    function refreshAll() {
-        selectedDate = document.getElementById('dateInput').value;
-        if(!document.getElementById('listPage').classList.contains('hidden')) openView(document.getElementById('lTitle').innerText);
-    }
-
-    function doSearch() {
-        const q = document.getElementById('searchBar').value.toLowerCase();
-        const res = document.getElementById('searchBox');
-        if(!q) { res.classList.add('hidden'); return; }
-        let found = "";
-        for(let k in appData) {
-            if(k.startsWith(selectedDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) {
-                found = k.split('_')[1]; break;
-            }
-        }
-        res.classList.remove('hidden');
-        res.innerHTML = found ? `✅ તમારી ડ્યુટી ${found} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
-        res.className = found ? "p-4 rounded-2xl bg-green-50 border-green-200 text-green-700 font-bold text-center text-sm" : "p-4 rounded-2xl bg-red-50 border-red-200 text-red-700 font-bold text-center text-sm";
-    }
-
-    function generateFullPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const rows = [];
-        Object.keys(appData).forEach(key => {
-            const parts = key.split('_');
-            if(parts.length === 4 && appData[key] !== "---") rows.push([parts[0], parts[1], parts[2], parts[3], appData[key]]);
+    function listenNotices() {
+        nDB.on('value', (snap) => {
+            const list = document.getElementById('noticeList'); list.innerHTML = "";
+            const data = snap.val(); if(!data) return;
+            Object.keys(data).forEach(id => {
+                const n = data[id];
+                let body = n.type === 'text' ? `<p class="font-bold leading-tight">${n.content}</p>` : 
+                           n.type === 'image' ? `<img src="${n.content}" class="rounded-xl max-h-60 w-full object-cover">` : 
+                           `<a href="${n.content}" download="Notice.pdf" class="file-link font-bold text-xs">📄 DOWNLOAD PDF FILE</a>`;
+                
+                list.innerHTML += `<div class="msg-bubble msg-admin self-start shadow-md">
+                    ${body}<p class="text-[8px] opacity-40 mt-2 text-right">${n.time}</p>
+                    ${role === 'admin' ? `<button onclick="delN('${id}')" class="text-[8px] text-red-300 font-bold mt-2 pt-2 border-t w-full text-left uppercase">Delete</button>` : ''}
+                </div>`;
+            });
+            list.scrollTop = list.scrollHeight;
         });
-        doc.autoTable({ head: [['Date', 'Dept', 'Pos', 'Shift', 'Name']], body: rows });
-        doc.save(`Duty_List.pdf`);
+    }
+
+    function sendMsg(type, content = "") {
+        const txt = document.getElementById('msgText').value.trim();
+        if(!txt && type === 'text') return;
+        nDB.push({ type, content: type === 'text' ? txt : content, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), timestamp: Date.now() });
+        document.getElementById('msgText').value = "";
+        msg("📤 સૂચના મોકલાઈ!");
+    }
+
+    function handleFile(type, input) {
+        const file = input.files[0]; if(!file) return;
+        if(file.size > 2 * 1024 * 1024) { msg("❌ ફાઈલ 2MB થી નાની જોઈએ!"); return; }
+        const reader = new FileReader();
+        reader.onload = (e) => sendMsg(type, e.target.result);
+        reader.readAsDataURL(file);
+        msg("⏳ અપલોડિંગ...");
+    }
+
+    // 6. GENERAL CONTROLS
+    function delN(id) { if(confirm("ડીલીટ?")) nDB.child(id).remove().then(()=>msg("🗑️ હટાવી દીધું.")); }
+    function closeModal() { document.getElementById('editModal').classList.add('hidden'); }
+    function goHome() { 
+        document.getElementById('slotView').classList.add('hidden');
+        document.getElementById('noticeView').classList.add('hidden');
+        document.getElementById('menuView').classList.remove('hidden'); 
+    }
+    function toggleShift() { 
+        shift = shift === "Day" ? "Night" : "Day"; 
+        document.getElementById('shiftBtn').innerText = shift === "Day" ? "☀️" : "🌙"; 
+        if(!document.getElementById('slotView').classList.contains('hidden')) renderSlots(document.getElementById('vTitle').innerText); 
+    }
+    function refreshData() { 
+        date = document.getElementById('appDate').value; 
+        if(!document.getElementById('slotView').classList.contains('hidden')) renderSlots(document.getElementById('vTitle').innerText); 
     }
 </script>
 </body>
