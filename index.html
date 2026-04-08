@@ -3,138 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hospital Management System</title>
+    <title>Hospital Staff & Leave Manager</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-        :root { --primary: #2c3e50; --secondary: #34495e; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; }
+        :root { --primary: #2c3e50; --accent: #3498db; --leave-bg: #ffeaea; --leave-text: #d63031; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; }
         
-        /* Side Menu Row Design */
         .sidenav { height: 100%; width: 0; position: fixed; z-index: 100; top: 0; left: 0; background: var(--primary); overflow-x: hidden; transition: 0.5s; padding-top: 20px; }
-        .sidenav .menu-row { padding: 15px; border-bottom: 1px solid #455a64; margin-bottom: 10px; }
-        .menu-row h4 { color: #ecf0f1; margin: 0 0 10px 0; font-size: 16px; border-left: 4px solid var(--accent); padding-left: 10px; }
-        .sidenav input { width: 90%; padding: 8px; margin: 5px 0; border-radius: 4px; border: none; }
-        .closebtn { position: absolute; top: 10px; right: 20px; font-size: 30px; color: white; cursor: pointer; }
-
-        header { background: var(--accent); color: white; padding: 15px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .menu-icon { font-size: 25px; cursor: pointer; margin-right: 15px; }
+        .menu-row { padding: 15px; border-bottom: 1px solid #455a64; color: white; }
+        .sidenav input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        
+        header { background: var(--accent); color: white; padding: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .menu-icon { font-size: 25px; cursor: pointer; }
 
         .container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 10px; }
         select, input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-add { background: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
         
-        .btn-main { background: var(--success); color: white; border: none; font-weight: bold; cursor: pointer; }
-        .btn-save { background: #f39c12; color: white; border: none; cursor: pointer; margin-top: 10px; }
-        
-        .download-btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-dl { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; font-size: 12px; }
-
-        .alert-item { background: #fff5f5; color: var(--danger); padding: 10px; margin-top: 5px; border-radius: 6px; border-left: 5px solid var(--danger); font-size: 14px; font-weight: bold; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; }
         th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
-        th { background: var(--secondary); color: white; }
-        .delete-btn { background: var(--danger); color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+        th { background: #34495e; color: white; }
+        
+        /* Leave Style */
+        .leave-row { background-color: var(--leave-bg); color: var(--leave-text); font-weight: bold; }
+        
+        .download-group { display: flex; gap: 10px; margin-top: 20px; padding: 0 20px; }
+        .btn-dl { flex: 1; padding: 12px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+        
+        .alert-item { background: #fff5f5; color: #c0392b; padding: 10px; margin-top: 5px; border-radius: 6px; border-left: 5px solid #e74c3c; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="mySidenav" class="sidenav">
-    <span class="closebtn" onclick="closeNav()">&times;</span>
-    
+    <span style="position:absolute;top:10px;right:20px;color:white;cursor:pointer;font-size:30px;" onclick="closeNav()">&times;</span>
     <div class="menu-row">
-        <h4>👤 સ્ટાફ મેનેજમેન્ટ</h4>
+        <h4>👤 નવો સ્ટાફ</h4>
         <input type="text" id="newStaffName" placeholder="નામ">
         <input type="number" id="newStaffRoll" placeholder="રોલ નંબર">
-        <input type="text" id="newStaffExp" placeholder="અનુભવ">
-        <input type="text" id="newStaffMobile" placeholder="મોબાઈલ">
-        <button class="btn-save" onclick="saveStaff()">સેવ સ્ટાફ</button>
-    </div>
-
-    <div class="menu-row">
-        <h4>🏥 વિભાગ મેનેજમેન્ટ</h4>
-        <input type="text" id="newDeptName" placeholder="વિભાગનું નામ">
-        <button class="btn-save" onclick="saveDept()">સેવ વિભાગ</button>
+        <button style="background:#e67e22; color:white; border:none; padding:10px; width:90%; cursor:pointer;" onclick="saveStaff()">સેવ સ્ટાફ</button>
     </div>
 </div>
 
 <header>
     <span class="menu-icon" onclick="openNav()">&#9776; મેનુ</span>
-    <span style="flex-grow: 1; text-align: center;">મલ્ટી-સ્પેશિયાલિટી હોસ્પિટલ ડ્યુટી સિસ્ટમ</span>
+    <span>હોસ્પિટલ ડ્યુટી & લીવ મેનેજર</span>
 </header>
 
 <div class="container">
     <div class="card">
-        <h3>📅 ડ્યુટી એલોકેશન</h3>
-        <label>સ્ટાફ પસંદ કરો:</label>
-        <select id="staffSelect" onchange="showExp()"></select>
-        <span id="expDisplay" style="color: var(--danger); font-size: 13px; font-weight: bold;">અનુભવ: -</span>
+        <h3>📅 ડ્યુટી / રજા સેટ કરો</h3>
+        <label>સ્ટાફ:</label>
+        <select id="staffSelect"></select>
         
-        <label>વિભાગ:</label>
-        <select id="deptSelect"></select>
+        <label>શિફ્ટ / સ્ટેટસ:</label>
+        <select id="shiftSelect">
+            <option value="☀️ Day Shift">☀️ Day Shift (સવાર)</option>
+            <option value="🌙 Night Shift">🌙 Night Shift (રાત)</option>
+            <option value="🏥 Full Day">🏥 Full Day (આખો દિવસ)</option>
+            <option value="🚩 ON LEAVE">🚩 ON LEAVE (રજા પર)</option>
+        </select>
+        
+        <label>વિભાગ (રજા હોય તો 'None' રાખો):</label>
+        <select id="deptSelect">
+            <option value="ICU">ICU</option>
+            <option value="OPD">OPD</option>
+            <option value="General Ward">General Ward</option>
+            <option value="OT">OT</option>
+            <option value="-">-</option>
+        </select>
         
         <label>તારીખ:</label>
-        <div style="display: flex; gap: 10px;">
-            <input type="date" id="startDate">
-            <input type="date" id="endDate">
-        </div>
+        <input type="date" id="dutyDate">
         
-        <button class="btn-main" onclick="assignDuty()">કન્ફર્મ ડ્યુટી</button>
+        <button class="btn-add" onclick="assignDuty()">કન્ફર્મ કરો</button>
     </div>
 
     <div class="card">
-        <h3 style="color: var(--danger);">🚨 બાકી સ્ટાફ (Missing)</h3>
+        <h3 style="color: #e74c3c;">🚨 બાકી સ્ટાફ (Missing)</h3>
         <div id="missingStaffList"></div>
     </div>
 </div>
 
 <div style="padding: 20px;">
-    <div class="card" id="printArea">
-        <h3>📋 ફાઈનલ ડ્યુટી લિસ્ટ</h3>
+    <div class="card" id="captureArea">
+        <h2 style="text-align: center;">હોસ્પિટલ ડ્યુટી રિપોર્ટ</h2>
         <table id="dutyTable">
             <thead>
                 <tr>
-                    <th>નામ</th>
-                    <th>રોલ</th>
+                    <th>નામ (રોલ)</th>
                     <th>વિભાગ</th>
+                    <th>શિફ્ટ / રજા</th>
                     <th>તારીખ</th>
-                    <th>એક્શન</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
-        <div class="download-btn-group">
-            <button class="btn-dl" style="background: #27ae60;" onclick="dlExcel()">Excel</button>
-            <button class="btn-dl" style="background: #c0392b;" onclick="dlPDF()">PDF</button>
-            <button class="btn-dl" style="background: #8e44ad;" onclick="dlImage()">Image</button>
-        </div>
     </div>
 
-    <div class="card" style="margin-top: 20px;">
-        <h3>👥 નોંધાયેલ તમામ સ્ટાફ</h3>
-        <table id="masterTable">
-            <thead>
-                <tr>
-                    <th>રોલ</th>
-                    <th>નામ</th>
-                    <th>અનુભવ</th>
-                    <th>મોબાઈલ</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div class="download-group">
+        <button class="btn-dl" style="background: #27ae60;" onclick="dlExcel()">Excel</button>
+        <button class="btn-dl" style="background: #c0392b;" onclick="dlPDF()">PDF</button>
+        <button class="btn-dl" style="background: #8e44ad;" onclick="dlImage()">Image</button>
     </div>
 </div>
 
 <script>
     let masterStaff = []; 
-    let depts = ["ICU", "OPD", "General Ward"];
     let assigned = [];
 
     function openNav() { document.getElementById("mySidenav").style.width = "300px"; }
@@ -143,93 +125,70 @@
     function saveStaff() {
         let n = document.getElementById("newStaffName").value;
         let r = document.getElementById("newStaffRoll").value;
-        let e = document.getElementById("newStaffExp").value;
-        let m = document.getElementById("newStaffMobile").value;
         if(n && r) {
-            masterStaff.push({name:n, roll:r, exp:e, mobile:m});
-            document.querySelectorAll(".sidenav input").forEach(i => i.value = "");
+            masterStaff.push({name:n, roll:r});
             updateUI();
+            closeNav();
         }
-    }
-
-    function saveDept() {
-        let d = document.getElementById("newDeptName").value;
-        if(d) { depts.push(d); document.getElementById("newDeptName").value = ""; updateUI(); }
-    }
-
-    function showExp() {
-        let sel = document.getElementById("staffSelect").value;
-        let s = masterStaff.find(i => i.name === sel);
-        document.getElementById("expDisplay").innerText = s ? "અનુભવ: " + s.exp : "અનુભવ: -";
     }
 
     function updateUI() {
         let sSel = document.getElementById("staffSelect");
-        let dSel = document.getElementById("deptSelect");
         let miss = document.getElementById("missingStaffList");
-        let mast = document.getElementById("masterTable").querySelector("tbody");
-
         sSel.innerHTML = "<option value=''>-- પસંદ કરો --</option>";
-        dSel.innerHTML = "";
         miss.innerHTML = "";
-        mast.innerHTML = "";
 
         masterStaff.forEach(s => {
             let opt = document.createElement("option");
-            opt.value = s.name; opt.text = s.name;
-            sSel.appendChild(opt);
-
+            opt.value = s.name; opt.text = s.name; sSel.appendChild(opt);
             if(!assigned.includes(s.name)) {
-                miss.innerHTML += `<div class="alert-item">❌ ${s.name} (Exp: ${s.exp})</div>`;
+                miss.innerHTML += `<div class="alert-item">❌ ${s.name}</div>`;
             }
-
-            mast.innerHTML += `<tr><td>${s.roll}</td><td>${s.name}</td><td>${s.exp}</td><td>${s.mobile}</td></tr>`;
-        });
-
-        depts.forEach(d => {
-            let opt = document.createElement("option");
-            opt.value = d; opt.text = d;
-            dSel.appendChild(opt);
         });
     }
 
     function assignDuty() {
         let n = document.getElementById("staffSelect").value;
         let d = document.getElementById("deptSelect").value;
-        let s = document.getElementById("startDate").value;
-        let e = document.getElementById("endDate").value;
+        let sh = document.getElementById("shiftSelect").value;
+        let dt = document.getElementById("dutyDate").value;
 
-        if(!n || !s) return alert("વિગત ભરો");
+        if(!n || !dt) return alert("વિગત ભરો!");
         if(!assigned.includes(n)) assigned.push(n);
-
+        
         let sObj = masterStaff.find(i => i.name === n);
-        let row = document.getElementById("dutyTable").querySelector("tbody").insertRow();
-        row.innerHTML = `<td>${n}</td><td>${sObj.roll}</td><td>${d}</td><td>${s} થી ${e}</td><td><button class="delete-btn" onclick="delRow(this, '${n}')">X</button></td>`;
+        let table = document.getElementById("dutyTable").querySelector("tbody");
+        let row = table.insertRow();
+        
+        // જો રજા હોય તો લાલ કલર આપવો
+        if(sh.includes("LEAVE")) {
+            row.className = "leave-row";
+        }
+        
+        row.innerHTML = `
+            <td><b>${n}</b> (${sObj.roll})</td>
+            <td>${d}</td>
+            <td>${sh}</td>
+            <td>${dt}</td>
+        `;
         updateUI();
     }
 
-    function delRow(btn, name) {
-        btn.parentElement.parentElement.remove();
-        assigned = assigned.filter(i => i !== name);
-        updateUI();
-    }
-
-    // Export Functions
-    function dlExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("dutyTable")), "Duty.xlsx"); }
+    function dlExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById("dutyTable")), "Duty_Report.xlsx"); }
     function dlPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text("Hospital Duty List", 14, 15);
-        doc.autoTable({ html: '#dutyTable', startY: 20 });
-        doc.save("Duty.pdf");
+        doc.autoTable({ html: '#dutyTable' });
+        doc.save("Duty_Report.pdf");
     }
     function dlImage() {
-        html2canvas(document.getElementById("printArea")).then(canvas => {
-            let a = document.createElement('a');
-            a.download = 'Duty.png'; a.href = canvas.toDataURL(); a.click();
+        html2canvas(document.getElementById("captureArea")).then(canvas => {
+            let link = document.createElement('a');
+            link.download = 'Duty_Report.png';
+            link.href = canvas.toDataURL();
+            link.click();
         });
     }
-
     updateUI();
 </script>
 
