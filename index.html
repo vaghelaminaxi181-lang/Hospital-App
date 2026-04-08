@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sanskardham Hospital | Vision v3.0</title>
+    <title>Sanskardham Hospital | Vision v2.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     
@@ -13,12 +13,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; touch-action: manipulation; }
         .gradient-header { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
         .btn-active:active { transform: scale(0.95); transition: 0.1s; }
-        .main-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; height: 110px; }
-        .modal-anim { animation: zoomIn 0.2s ease-out; }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .main-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; height: 120px; }
+        .download-fab { position: fixed; bottom: 85px; right: 20px; z-index: 100; }
+        .suggestion-chip { cursor: pointer; transition: 0.2s; }
+        .suggestion-chip:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
@@ -38,92 +39,88 @@
     </header>
 
     <div id="loginPage" class="p-8 flex-grow flex flex-col justify-center space-y-4">
+        <div class="text-center mb-4"><span class="text-5xl">🏥</span></div>
         <input type="text" id="loginID" placeholder="User ID" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
         <input type="password" id="loginPass" placeholder="Password" class="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 outline-none text-center font-bold">
         <button onclick="login()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold btn-active uppercase">Login</button>
     </div>
 
     <div id="mainMenu" class="hidden p-5 space-y-4 flex-grow">
+        <h3 class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Main Menu</h3>
         <div class="grid grid-cols-2 gap-3">
-            <div onclick="showDutySection()" class="main-card p-4 bg-white rounded-[25px] flex flex-col items-center justify-center btn-active cursor-pointer border-blue-100 border-2 shadow-sm">
+            <div onclick="showDutySection()" class="main-card p-4 bg-white rounded-[25px] flex flex-col items-center justify-center btn-active cursor-pointer border-blue-50 border-2 shadow-sm">
                 <span class="text-3xl mb-1">📅</span>
                 <span class="font-black text-slate-700 text-[10px] uppercase">Duty List</span>
             </div>
-            <div onclick="showProfileSection()" class="main-card p-4 bg-white rounded-[25px] flex flex-col items-center justify-center btn-active cursor-pointer border-green-100 border-2 shadow-sm">
+            <div onclick="showProfileSection()" class="main-card p-4 bg-white rounded-[25px] flex flex-col items-center justify-center btn-active cursor-pointer border-green-50 border-2 shadow-sm">
                 <span class="text-3xl mb-1">👤</span>
-                <span class="font-black text-slate-700 text-[10px] uppercase">My Profile</span>
+                <span class="font-black text-slate-700 text-[10px] uppercase text-center leading-tight">My Profile<br><span class="text-[8px] opacity-40 font-normal">(Experience)</span></span>
             </div>
         </div>
     </div>
 
     <div id="profileSection" class="hidden p-5 space-y-5 flex-grow">
-        <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] uppercase">⬅ Back</button>
-        <div class="bg-blue-50 p-6 rounded-[30px] space-y-3">
-            <input type="text" id="profName" placeholder="Full Name" class="w-full p-3 rounded-xl border-none font-bold text-sm">
-            <input type="text" id="profID" placeholder="Staff ID / Roll No" class="w-full p-3 rounded-xl border-none font-bold text-sm">
-            <select id="profExp" class="w-full p-3 rounded-xl border-none font-bold text-sm bg-white">
-                <option value="">Select Experience Dept</option>
+        <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] uppercase tracking-tighter">⬅ Back to Menu</button>
+        <div class="bg-blue-50 p-5 rounded-[30px] space-y-3 shadow-inner">
+            <h2 class="text-sm font-black text-blue-900 uppercase">Staff Experience Details</h2>
+            <input type="text" id="profName" placeholder="તમારું આખું નામ" class="w-full p-3 rounded-xl border-none outline-none text-sm font-bold shadow-sm">
+            <input type="text" id="profID" placeholder="તમારો રોલ નંબર / ID" class="w-full p-3 rounded-xl border-none outline-none text-sm font-bold shadow-sm">
+            <select id="profExp" class="w-full p-3 rounded-xl border-none outline-none text-sm font-bold shadow-sm bg-white">
+                <option value="">અનુભવનો વિભાગ પસંદ કરો</option>
                 <option value="OPD">OPD</option>
                 <option value="EMERGENCY">EMERGENCY</option>
                 <option value="ORTHOPEDIC">ORTHOPEDIC</option>
                 <option value="ICU">ICU</option>
+                <option value="WARD">WARD</option>
             </select>
-            <button onclick="saveProfile()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold uppercase text-xs">Save Profile</button>
+            <button onclick="saveProfile()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold btn-active uppercase text-xs">Save Details</button>
         </div>
+        <p class="text-[9px] text-gray-400 italic text-center font-bold tracking-tight px-4">* અહીં માહિતી ભરવાથી એડમિન જ્યારે તે વિભાગમાં ડ્યુટી નાખશે ત્યારે તમારું નામ ઉપર બતાવશે.</p>
     </div>
 
     <div id="dutySection" class="hidden p-5 space-y-4 flex-grow pb-32">
-        <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] uppercase">⬅ Back</button>
+        <button onclick="backToMenu()" class="text-blue-600 font-bold text-[10px] flex items-center uppercase tracking-tighter">⬅ Back to Menu</button>
         <div class="relative">
-            <input type="text" id="searchBar" onkeyup="doSearch()" placeholder="શોધો..." class="w-full p-3.5 pl-10 rounded-2xl bg-white border border-gray-100 outline-none font-bold">
-            <span class="absolute left-3.5 top-3.5">🔍</span>
+            <input type="text" id="searchBar" onkeyup="doSearch()" placeholder="તમારી ડ્યુટી શોધો..." class="w-full p-3.5 pl-10 rounded-2xl bg-white shadow-sm border border-gray-100 outline-none text-sm font-bold">
+            <span class="absolute left-3.5 top-3.5 text-lg">🔍</span>
         </div>
+        <div id="searchBox" class="hidden p-4 rounded-2xl border-2 font-bold text-center text-sm"></div>
         <div id="deptGrid" class="grid grid-cols-2 gap-3"></div>
     </div>
 
     <div id="listPage" class="hidden p-5 flex-grow pb-32">
-        <button onclick="backToDuty()" class="text-blue-600 font-bold text-[10px] mb-4 uppercase">⬅ Back</button>
+        <button onclick="backToDuty()" class="text-blue-600 font-bold text-[10px] mb-4 flex items-center uppercase tracking-tighter">⬅ Back to Duty List</button>
         <div class="text-center mb-6">
             <h2 id="lTitle" class="text-2xl font-black text-gray-800 uppercase italic"></h2>
-            <p id="lSub" class="text-[9px] font-bold text-gray-400 uppercase tracking-[3px]"></p>
+            <p id="lSub" class="text-[9px] font-bold text-gray-400 uppercase tracking-[3px] mt-1"></p>
         </div>
         <div id="lBody" class="space-y-2.5"></div>
     </div>
 
+    <div id="downloadAction" class="hidden download-fab flex flex-col items-center">
+        <button onclick="generateFullPDF()" class="bg-blue-700 text-white p-4 rounded-full shadow-2xl btn-active border-4 border-white">
+            <span class="text-2xl">📥</span>
+        </button>
+    </div>
+
     <div id="editModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-center justify-center p-6 backdrop-blur-sm">
-        <div class="bg-white w-full rounded-[40px] p-6 shadow-2xl modal-anim max-h-[90vh] overflow-y-auto">
-            <h3 id="editDeptLabel" class="font-black text-gray-800 mb-2 text-center uppercase text-sm border-b pb-1"></h3>
-            
+        <div class="bg-white w-full rounded-[40px] p-6 shadow-2xl modal-anim">
+            <h3 id="editDeptLabel" class="font-black text-gray-800 mb-2 text-center uppercase text-sm tracking-widest border-b pb-1"></h3>
             <div id="suggestionArea" class="mb-4">
-                <p class="text-[8px] font-bold text-blue-600 uppercase mb-2">Experienced Staff:</p>
-                <div id="suggestionList" class="flex flex-wrap gap-2"></div>
-            </div>
-
-            <input type="text" id="staffInput" placeholder="Staff Name..." class="w-full p-4 bg-gray-100 rounded-2xl font-bold text-center text-sm mb-4">
-
-            <div class="bg-orange-50 p-4 rounded-2xl mb-4">
-                <p class="text-[9px] font-bold text-orange-600 uppercase mb-2">Assign for Multiple Days? (Optional)</p>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[8px] font-bold text-gray-400">START DATE</label>
-                        <input type="date" id="bulkStart" class="w-full p-2 rounded-lg text-xs font-bold border-none">
+                <p class="text-[8px] font-bold text-blue-600 uppercase mb-2 tracking-widest">Recommended Staff (Experienced):</p>
+                <div id="suggestionList" class="flex flex-wrap gap-2">
                     </div>
-                    <div>
-                        <label class="text-[8px] font-bold text-gray-400">END DATE</label>
-                        <input type="date" id="bulkEnd" class="w-full p-2 rounded-lg text-xs font-bold border-none">
-                    </div>
-                </div>
             </div>
-
-            <div class="flex space-x-2">
+            <input type="text" id="staffInput" placeholder="અથવા અહીં નામ લખો..." class="w-full p-4 bg-gray-100 rounded-2xl outline-none font-bold text-center text-sm border-2 border-transparent focus:border-blue-500">
+            <div class="flex space-x-2 mt-6">
                 <button onclick="closeEdit()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-400 text-[10px]">CANCEL</button>
-                <button onclick="saveSlot()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-[10px]">SAVE DUTY</button>
+                <button onclick="saveSlot()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-[10px]">SAVE</button>
             </div>
         </div>
     </div>
 
     <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 border-t p-3 flex justify-center z-50">
-        <p class="text-blue-900 font-black text-[8px] tracking-[4px] opacity-40 uppercase">Jatin Solanki By Vision</p>
+        <p class="text-blue-900 font-black text-[8px] tracking-[4px] opacity-40 uppercase tracking-widest">Jatin Solanki By Vision</p>
     </footer>
 </div>
 
@@ -136,10 +133,9 @@
     let role = "viewer", shift = "Day", selectedDate = "", appData = {}, staffProfiles = {}, currentEditKey = "";
 
     window.onload = () => {
+        // આજની તારીખ સેટ કરવી
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('dateInput').value = today;
-        document.getElementById('bulkStart').value = today;
-        document.getElementById('bulkEnd').value = today;
         selectedDate = today;
     };
 
@@ -148,7 +144,7 @@
         const p = document.getElementById('loginPass').value;
         if(id === "ssgd" && p === "9099020925") role = "admin";
         else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else return alert("Invalid ID/Pass");
+        else return alert("Invalid Login!");
 
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('mainMenu').classList.remove('hidden');
@@ -157,10 +153,24 @@
     }
 
     function startSync() {
-        db.on('value', (s) => appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST", "ORTHOPEDIC"] });
+        db.on('value', (s) => appData = s.val() || { "Depts": ["OPD", "EMERGENCY", "OFF LIST"] });
         profileDB.on('value', (s) => staffProfiles = s.val() || {});
     }
 
+    // પ્રોફાઈલ સેવ કરવી
+    function saveProfile() {
+        const name = document.getElementById('profName').value.trim();
+        const sid = document.getElementById('profID').value.trim();
+        const exp = document.getElementById('profExp').value;
+        if(!name || !sid || !exp) return alert("બધી વિગત ભરો!");
+        
+        profileDB.child(sid).set({ name, exp }).then(() => {
+            alert("✅ પ્રોફાઈલ સેવ થઈ ગઈ!");
+            backToMenu();
+        });
+    }
+
+    // નેવિગેશન
     function showDutySection() {
         document.getElementById('mainMenu').classList.add('hidden');
         document.getElementById('dutySection').classList.remove('hidden');
@@ -183,7 +193,7 @@
     function renderGrid() {
         const grid = document.getElementById('deptGrid');
         grid.innerHTML = "";
-        const ds = appData["Depts"] || ["OPD", "EMERGENCY", "OFF LIST", "ORTHOPEDIC"];
+        const ds = appData["Depts"] || ["OPD", "EMERGENCY", "OFF LIST"];
         ds.forEach(d => {
             grid.innerHTML += `<div onclick="openView('${d}')" class="p-4 bg-white rounded-[25px] border border-slate-100 shadow-sm flex flex-col items-center btn-active">
                 <span class="text-2xl mb-1">${d.includes('OFF')?'😴':'🏥'}</span>
@@ -204,55 +214,38 @@
             let val = appData[key] || "---";
             h += `<div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
                 <span class="text-[8px] font-bold text-slate-400 uppercase">Slot ${i}</span>
-                <span onclick="${role==='admin'?`openEdit('${key}','${d}','${i}')`:''}" class="${role==='admin'?'text-blue-600 font-bold underline italic':'font-bold text-slate-800'}">${val}</span>
+                <span onclick="${role==='admin'?`openEdit('${key}','${d}')`:''}" class="${role==='admin'?'text-blue-600 font-bold underline italic':'font-bold text-slate-800'}">${val}</span>
             </div>`;
         }
         document.getElementById('lBody').innerHTML = h;
     }
 
-    let currentSlotIdx = "";
-    function openEdit(key, dept, idx) {
+    function openEdit(key, dept) {
         currentEditKey = key;
-        currentSlotIdx = idx;
-        document.getElementById('editDeptLabel').innerText = `${dept} - Slot ${idx}`;
+        document.getElementById('editDeptLabel').innerText = dept;
         document.getElementById('staffInput').value = (appData[key] === "---") ? "" : (appData[key] || "");
         
+        // સ્માર્ટ સજેશન: જે સ્ટાફને આ વિભાગનો અનુભવ હોય તેમના નામ બતાવશે
         const list = document.getElementById('suggestionList');
         list.innerHTML = "";
+        let found = false;
         Object.values(staffProfiles).forEach(p => {
             if(p.exp.toUpperCase() === dept.toUpperCase()) {
-                list.innerHTML += `<div onclick="setStaff('${p.name}')" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[9px] font-bold border border-blue-200">+ ${p.name}</div>`;
+                found = true;
+                list.innerHTML += `<div onclick="setStaff('${p.name}')" class="suggestion-chip bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[9px] font-bold border border-blue-200">+ ${p.name}</div>`;
             }
         });
+        if(!found) list.innerHTML = "<p class='text-[8px] text-gray-400'>No experienced staff found.</p>";
+
         document.getElementById('editModal').classList.remove('hidden');
     }
 
     function setStaff(name) { document.getElementById('staffInput').value = name; }
     function closeEdit() { document.getElementById('editModal').classList.add('hidden'); }
-
-    // Bulk Save Logic
-    async function saveSlot() {
-        const staff = document.getElementById('staffInput').value.trim() || "---";
-        const start = document.getElementById('bulkStart').value;
-        const end = document.getElementById('bulkEnd').value;
-        const dept = document.getElementById('lTitle').innerText;
-
-        if (start === end) {
-            // Single Date Save
-            await db.child(currentEditKey).set(staff);
-        } else {
-            // Multi Date Bulk Save
-            let curr = new Date(start);
-            let last = new Date(end);
-            while (curr <= last) {
-                let dStr = curr.toISOString().split('T')[0];
-                let bKey = `${dStr}_${dept}_${currentSlotIdx}_${shift}`;
-                await db.child(bKey).set(staff);
-                curr.setDate(curr.getDate() + 1);
-            }
-        }
+    function saveSlot() {
+        db.update({ [currentEditKey]: document.getElementById('staffInput').value.trim() || "---" });
         closeEdit();
-        openView(dept);
+        openView(currentEditKey.split('_')[1]);
     }
 
     function toggleShift() {
@@ -266,14 +259,6 @@
         if(!document.getElementById('listPage').classList.contains('hidden')) openView(document.getElementById('lTitle').innerText);
     }
 
-    function saveProfile() {
-        const name = document.getElementById('profName').value.trim();
-        const sid = document.getElementById('profID').value.trim();
-        const exp = document.getElementById('profExp').value;
-        if(!name || !sid || !exp) return alert("Fill all details");
-        profileDB.child(sid).set({ name, exp }).then(() => { alert("Saved!"); backToMenu(); });
-    }
-
     function doSearch() {
         const q = document.getElementById('searchBar').value.toLowerCase();
         const res = document.getElementById('searchBox');
@@ -284,7 +269,21 @@
                 found = k.split('_')[1]; break;
             }
         }
-        alert(found ? `તમારી ડ્યુટી ${found} માં છે.` : "મળ્યું નથી.");
+        res.classList.remove('hidden');
+        res.innerHTML = found ? `✅ તમારી ડ્યુટી ${found} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
+        res.className = found ? "p-4 rounded-2xl bg-green-50 border-green-200 text-green-700 font-bold text-center text-sm" : "p-4 rounded-2xl bg-red-50 border-red-200 text-red-700 font-bold text-center text-sm";
+    }
+
+    function generateFullPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const rows = [];
+        Object.keys(appData).forEach(key => {
+            const parts = key.split('_');
+            if(parts.length === 4 && appData[key] !== "---") rows.push([parts[0], parts[1], parts[2], parts[3], appData[key]]);
+        });
+        doc.autoTable({ head: [['Date', 'Dept', 'Pos', 'Shift', 'Name']], body: rows });
+        doc.save(`Duty_List.pdf`);
     }
 </script>
 </body>
