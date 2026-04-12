@@ -34,9 +34,38 @@
         .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; }
         .suggestion-item:hover { background-color: #eff6ff; }
         .exp-tag { font-size: 9px; background: #dbeafe; color: #1e40af; padding: 3px 10px; border-radius: 50px; font-weight: 800; text-transform: uppercase; }
+
+        /* Toast Styling */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #1e3a8a;
+            color: #fff;
+            text-align: center;
+            border-radius: 15px;
+            padding: 16px;
+            position: fixed;
+            z-index: 5000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-weight: bold;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        #toast.show {
+            visibility: visible;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
+
+<div id="toast">સ્ટાફ સેવ થઈ ગયો!</div>
 
 <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
@@ -209,7 +238,15 @@
 
     let role = "viewer", shift = "Day", selDate = "", appData = {}, editKey = "", allStaffRaw = {};
 
-    // --- SERVICE WORKER REGISTRATION (FOR PWA) ---
+    // --- TOAST NOTIFICATION FUNCTION ---
+    function showToast(message) {
+        const toast = document.getElementById("toast");
+        toast.innerText = message;
+        toast.className = "show";
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    // --- SERVICE WORKER REGISTRATION ---
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             const swCode = `
@@ -254,7 +291,10 @@
         const p = document.getElementById('loginPass').value;
         if(id === "ssgd" && p === "9099020925") role = "admin";
         else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else return alert("ખોટો પાસવર્ડ!");
+        else {
+            showToast("ખોટો પાસવર્ડ!");
+            return;
+        }
 
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('dateArea').classList.remove('hidden');
@@ -322,12 +362,24 @@
             mob: document.getElementById('pMobile').value.trim(),
             exp: document.getElementById('pExp').value.trim()
         };
-        if(!data.name || !data.exp) return alert("નામ અને અનુભવ જરૂરી છે!");
+        if(!data.name || !data.exp) {
+            showToast("નામ અને અનુભવ જરૂરી છે!");
+            return;
+        }
 
         if(key) {
-            profDB.child(key).update(data).then(() => { alert("સુધારો થઈ ગયો!"); resetStaffForm(); showSection('staffListSection'); loadStaffRecords(); });
+            profDB.child(key).update(data).then(() => { 
+                showToast("સુધારો થઈ ગયો!"); 
+                resetStaffForm(); 
+                showSection('staffListSection'); 
+                loadStaffRecords(); 
+            });
         } else {
-            profDB.push(data).then(() => { alert("સ્ટાફ સેવ થઈ ગયો!"); resetStaffForm(); showSection('dutySection'); });
+            profDB.push(data).then(() => { 
+                showToast("સ્ટાફ સેવ થઈ ગયો!"); 
+                resetStaffForm(); 
+                showSection('dutySection'); 
+            });
         }
     }
 
@@ -362,7 +414,12 @@
     }
 
     function deleteStaff(key) {
-        if(confirm("શું તમે આ સ્ટાફને ડિલીટ કરવા માંગો છો?")) profDB.child(key).remove().then(() => loadStaffRecords());
+        if(confirm("શું તમે આ સ્ટાફને ડિલીટ કરવા માંગો છો?")) {
+            profDB.child(key).remove().then(() => {
+                showToast("સ્ટાફ ડિલીટ થયો!");
+                loadStaffRecords();
+            });
+        }
     }
 
     function resetStaffForm() {
@@ -390,15 +447,25 @@
         const name = input.value.trim().toUpperCase();
         if(!name) return;
         let depts = appData.Depts || [];
-        if(depts.includes(name)) return alert("વિભાગ પહેલેથી છે!");
+        if(depts.includes(name)) {
+            showToast("વિભાગ પહેલેથી છે!");
+            return;
+        }
         depts.push(name);
-        db.child("Depts").set(depts).then(() => { input.value = ""; renderDeptManager(); });
+        db.child("Depts").set(depts).then(() => { 
+            input.value = ""; 
+            renderDeptManager(); 
+            showToast("નવો વિભાગ ઉમેરાયો!");
+        });
     }
 
     function removeDept(name) {
         if(confirm(`શું તમે ખરેખર "${name}" વિભાગ કાઢી નાખવા માંગો છો?`)) {
             let depts = appData.Depts.filter(d => d !== name);
-            db.child("Depts").set(depts).then(() => renderDeptManager());
+            db.child("Depts").set(depts).then(() => {
+                renderDeptManager();
+                showToast("વિભાગ દૂર થયો!");
+            });
         }
     }
 
@@ -448,7 +515,11 @@
             updates[k] = name;
             temp.setDate(temp.getDate() + 1);
         }
-        db.update(updates).then(() => { closeModal(); openSlots(parts[1]); });
+        db.update(updates).then(() => { 
+            closeModal(); 
+            openSlots(parts[1]); 
+            showToast("ડ્યુટી સેવ થઈ ગઈ!");
+        });
     }
 
     // --- REPORTS ---
