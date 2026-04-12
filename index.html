@@ -8,10 +8,7 @@
     <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Sanskardham Hospital">
     
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJkZWZhdWx0X2xvY2FsZSI6ICJndSIsCiAgIm5hbWUiOiAiU2Fuc2thcmRoYW0gSG9zcGl0YWwgU3RhZmYgQXBwIiwKICAic2hvcnRfbmFtZSI6ICJIb3NwaXRhbCIsCiAgImRlc2NyaXB0aW9uIjogIkR1dHkgTWFuYWdlbWVudCBmb3IgSGFzcGl0YWwgU3RhZmYiLAogICJzdGFydXNfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmOGZhZmMiLAogICJ0aGVtZV9jb2xvciI6ICIjMWUzYThhIiwogICJpY29ucyI6IFwKICAgIFwKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2kuYmIuY28vdmw2TjIzQS9pY29uLWltYWdlLnBuZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiSW1hZ2UvcG5nIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     
@@ -35,38 +32,15 @@
         .suggestion-item:hover { background-color: #eff6ff; }
         .exp-tag { font-size: 9px; background: #dbeafe; color: #1e40af; padding: 3px 10px; border-radius: 50px; font-weight: 800; text-transform: uppercase; }
 
-        /* Toast Styling */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #1e3a8a;
-            color: #fff;
-            text-align: center;
-            border-radius: 15px;
-            padding: 16px;
-            position: fixed;
-            z-index: 5000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            font-weight: bold;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        #toast.show {
-            visibility: visible;
-            -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        }
-        @-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        #toast { visibility: hidden; min-width: 250px; background-color: #1e3a8a; color: #fff; text-align: center; border-radius: 15px; padding: 16px; position: fixed; z-index: 5000; left: 50%; bottom: 30px; transform: translateX(-50%); font-weight: bold; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
-<div id="toast">સ્ટાફ સેવ થઈ ગયો!</div>
-
+<div id="toast">સેવ થઈ ગયું!</div>
 <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
 <div id="sidebar" class="sidebar p-6 flex flex-col">
@@ -75,8 +49,8 @@
         <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Navigation</p>
     </div>
     <nav class="space-y-2 flex-grow">
-        <button onclick="showSection('profileSection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>👤</span> <span>Add Staff</span></button>
         <button onclick="showSection('dutySection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>📅</span> <span>Duty Board</span></button>
+        <button onclick="showSection('profileSection')" class="w-full text-left p-4 rounded-xl hover:bg-blue-50 flex items-center space-x-3 font-bold text-gray-700"><span>👤</span> <span>Add Staff</span></button>
         
         <div id="adminMenu" class="hidden pt-4 border-t mt-4 space-y-2">
             <p class="text-[9px] font-bold text-blue-600 uppercase px-4">Admin Panel</p>
@@ -126,36 +100,38 @@
                 <span class="absolute left-4 top-4">🔍</span>
             </div>
             <div id="searchRes" class="hidden p-4 rounded-2xl font-bold text-center"></div>
-            <div id="deptGrid" class="grid grid-cols-2 gap-4"></div>
+            
+            <div class="bg-white rounded-3xl border shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-100 text-blue-900">
+                            <tr>
+                                <th class="p-4 text-[11px] font-black uppercase border-r">વિભાગ</th>
+                                <th class="p-4 text-[11px] font-black uppercase">સ્ટાફ લિસ્ટ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="excelDutyBody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div id="deptManageSection" class="hidden space-y-4">
             <h2 class="text-2xl font-black text-blue-900 px-2">Manage Departments</h2>
-            <div class="bg-white p-4 rounded-[30px] border shadow-sm">
-                <div class="flex flex-col space-y-3">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">નવો વિભાગ ઉમેરો</label>
-                    <div class="flex flex-wrap gap-2">
-                        <input type="text" id="newDeptInput" placeholder="દા.ત. ADMIT" class="flex-1 min-w-[150px] p-4 bg-gray-50 rounded-2xl font-bold border outline-none uppercase text-blue-900 focus:border-blue-500 text-sm">
-                        <button onclick="addDepartment()" class="bg-blue-600 text-white px-6 py-4 rounded-2xl font-black shadow-lg btn-active">ADD</button>
-                    </div>
-                </div>
-                <div class="mt-8">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">ચાલુ વિભાગો</p>
-                    <div id="deptListItems" class="space-y-3"></div>
-                </div>
+            <div class="bg-white p-4 rounded-[30px] border shadow-sm space-y-4">
+                <input type="text" id="newDeptInput" placeholder="New Dept Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none uppercase">
+                <button onclick="addDepartment()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black shadow-lg">ADD DEPARTMENT</button>
+                <div id="deptListItems" class="space-y-2 mt-4"></div>
             </div>
         </div>
 
         <div id="staffListSection" class="hidden space-y-4">
             <h2 class="text-2xl font-black text-blue-900 px-2">Staff Records</h2>
-            <div class="bg-white p-4 rounded-3xl shadow-sm border space-y-3">
-                <input type="text" id="staffSearch" onkeyup="filterStaffTable()" placeholder="નામ શોધો..." class="w-full p-3 bg-gray-50 rounded-xl text-xs font-bold border outline-none">
-                <button onclick="downloadStaffPDF()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold uppercase text-[10px] shadow-md btn-active">Download Staff List PDF</button>
-            </div>
-            <div class="bg-white rounded-2xl border overflow-hidden">
+            <input type="text" id="staffSearch" onkeyup="filterStaffTable()" placeholder="નામ શોધો..." class="w-full p-4 bg-white rounded-2xl font-bold border shadow-sm outline-none">
+            <div class="bg-white rounded-2xl border overflow-hidden shadow-sm">
                 <table class="w-full text-left">
                     <thead class="bg-blue-50 text-[10px] font-black uppercase">
-                        <tr><th class="p-4">Staff Name</th><th class="p-4">Exp</th><th class="p-4 text-center">Action</th></tr>
+                        <tr><th class="p-4">Name</th><th class="p-4">Exp</th><th class="p-4 text-center">Action</th></tr>
                     </thead>
                     <tbody id="staffListCont" class="text-[11px] font-bold"></tbody>
                 </table>
@@ -167,40 +143,20 @@
             <div class="bg-white p-6 rounded-3xl border space-y-4 shadow-sm">
                 <input type="hidden" id="editStaffKey">
                 <input type="text" id="pName" placeholder="Full Name" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
-                <input type="text" id="pID" placeholder="ID Number" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
-                <input type="number" id="pMobile" placeholder="Mobile" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
                 <input type="text" id="pExp" placeholder="Experience (OPD, Admit, etc.)" class="w-full p-4 bg-gray-50 rounded-2xl font-bold border outline-none">
                 <button id="saveStaffBtn" onclick="saveProfile()" class="w-full gradient-header text-white p-4 rounded-2xl font-bold shadow-lg uppercase">SAVE STAFF</button>
-                <button id="cancelEditBtn" onclick="resetStaffForm(); showSection('staffListSection');" class="hidden w-full bg-gray-100 text-gray-500 p-4 rounded-2xl font-bold">CANCEL</button>
             </div>
-        </div>
-
-        <div id="listPage" class="hidden space-y-4">
-            <div class="text-center bg-blue-50 py-4 rounded-3xl">
-                <h2 id="lTitle" class="text-2xl font-black text-blue-900 uppercase"></h2>
-                <p id="lSub" class="text-[10px] font-bold text-blue-400 mt-1"></p>
-            </div>
-            <div id="lBody" class="space-y-3"></div>
         </div>
 
         <div id="fullDutySection" class="hidden space-y-4">
-            <div class="bg-white p-4 rounded-3xl border shadow-sm space-y-3">
-                <h2 class="text-xl font-black text-blue-900 uppercase">Duty Report</h2>
-                <div class="grid grid-cols-2 gap-2">
-                    <div><label class="text-[9px] font-bold text-gray-400">START</label><input type="date" id="fStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
-                    <div><label class="text-[9px] font-bold text-gray-400">END</label><input type="date" id="fEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
-                </div>
-                <button onclick="loadFullDutyRecords()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold uppercase text-[10px]">Generate List</button>
-                <button onclick="downloadDutyPDF()" class="w-full bg-green-600 text-white p-3 rounded-xl font-bold uppercase text-[10px]">Download PDF</button>
+            <h2 class="text-xl font-black text-blue-900 uppercase">Duty Report</h2>
+            <div class="grid grid-cols-2 gap-2">
+                <input type="date" id="fStart" class="p-3 bg-white border rounded-xl text-xs font-bold">
+                <input type="date" id="fEnd" class="p-3 bg-white border rounded-xl text-xs font-bold">
             </div>
-            <div class="bg-white rounded-2xl border overflow-x-auto">
-                <table class="w-full text-left min-w-[400px]">
-                    <thead class="bg-slate-50 text-[10px] font-black uppercase"><tr><th class="p-3">Date</th><th class="p-3">Staff</th><th class="p-3">Dept</th><th class="p-3">Shift</th></tr></thead>
-                    <tbody id="fullDutyCont" class="text-[11px] font-bold"></tbody>
-                </table>
-            </div>
+            <button onclick="loadFullDutyRecords()" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold uppercase">Generate List</button>
+            <div id="fullDutyCont" class="space-y-2"></div>
         </div>
-
     </main>
 
     <footer class="p-4 flex justify-center border-t bg-white">
@@ -210,11 +166,17 @@
 
 <div id="rangeModal" class="hidden fixed inset-0 bg-black/70 z-[2000] flex items-center justify-center p-6 backdrop-blur-md">
     <div class="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl relative">
-        <h3 class="font-black text-center border-b pb-3 mb-5 text-blue-900 uppercase">Set Duty Slot</h3>
+        <h3 id="modalTitle" class="font-black text-center border-b pb-3 mb-5 text-blue-900 uppercase">Set Duty Slot</h3>
         <div class="space-y-4 mb-6">
             <div class="flex space-x-3">
-                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">START DATE</label><input type="date" id="rStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
-                <div class="flex-1"><label class="text-[9px] font-bold text-gray-400 block mb-1">END DATE</label><input type="date" id="rEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold"></div>
+                <div class="flex-1">
+                    <label class="text-[9px] font-bold text-gray-400 block mb-1">START DATE</label>
+                    <input type="date" id="rStart" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
+                </div>
+                <div class="flex-1">
+                    <label class="text-[9px] font-bold text-gray-400 block mb-1">END DATE</label>
+                    <input type="date" id="rEnd" class="w-full p-2 bg-gray-50 border rounded-xl text-xs font-bold">
+                </div>
             </div>
             <div class="relative">
                 <label class="text-[9px] font-bold text-gray-400 block mb-1">SELECT STAFF</label>
@@ -223,14 +185,13 @@
             </div>
         </div>
         <div class="flex space-x-3">
-            <button onclick="closeModal()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-500 text-xs">CANCEL</button>
+            <button onclick="closeModal()" class="flex-1 p-4 bg-gray-100 rounded-2xl font-bold text-gray-500 text-xs uppercase">Cancel</button>
             <button onclick="saveRangeDuty()" class="flex-1 p-4 gradient-header text-white rounded-2xl font-bold text-xs uppercase shadow-lg">Save Duty</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- DATABASE CONFIG ---
     const firebaseConfig = { databaseURL: "https://jatin-9a897-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref("hospital_v11_final");
@@ -238,52 +199,17 @@
 
     let role = "viewer", shift = "Day", selDate = "", appData = {}, editKey = "", allStaffRaw = {};
 
-    // --- TOAST NOTIFICATION FUNCTION ---
-    function showToast(message) {
-        const toast = document.getElementById("toast");
-        toast.innerText = message;
-        toast.className = "show";
-        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
-    }
+    function showToast(m) { const t = document.getElementById("toast"); t.innerText = m; t.className = "show"; setTimeout(()=>t.className="", 3000); }
 
-    // --- SERVICE WORKER REGISTRATION ---
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            const swCode = `
-                const CACHE_NAME = 'sanskardham-v2';
-                const urlsToCache = ['/'];
-                self.addEventListener('install', event => {
-                    event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
-                });
-                self.addEventListener('fetch', event => {
-                    event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
-                });
-            `;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl).catch(err => console.log('SW failed', err));
-        });
-    }
-
-    // --- NAVIGATION ---
     function toggleMenu() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
 
-    function showSection(id) { 
+    function showSection(id) {
         if(document.getElementById('sidebar').classList.contains('open')) toggleMenu();
-        const ids = ['loginPage', 'profileSection', 'dutySection', 'listPage', 'staffListSection', 'fullDutySection', 'deptManageSection'];
-        ids.forEach(x => {
-            const el = document.getElementById(x);
-            if(el) el.classList.add('hidden');
-        });
+        const ids = ['loginPage', 'profileSection', 'dutySection', 'staffListSection', 'fullDutySection', 'deptManageSection'];
+        ids.forEach(x => document.getElementById(x).classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
-
-        if(id === 'dutySection') {
-            document.getElementById('menuBtn').classList.remove('hidden');
-            document.getElementById('backBtn').classList.add('hidden');
-        } else if(id !== 'loginPage') {
-            document.getElementById('menuBtn').classList.add('hidden');
-            document.getElementById('backBtn').classList.remove('hidden');
-        }
+        document.getElementById('menuBtn').classList.toggle('hidden', id==='loginPage');
+        document.getElementById('backBtn').classList.toggle('hidden', id==='dutySection' || id==='loginPage');
     }
 
     function login() {
@@ -291,10 +217,7 @@
         const p = document.getElementById('loginPass').value;
         if(id === "ssgd" && p === "9099020925") role = "admin";
         else if(id === "ssgd" && p === "9712284024") role = "viewer";
-        else {
-            showToast("ખોટો પાસવર્ડ!");
-            return;
-        }
+        else { showToast("ખોટો પાસવર્ડ!"); return; }
 
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('dateArea').classList.remove('hidden');
@@ -308,294 +231,140 @@
         fetchAllStaff();
     }
 
-    // --- DATA HANDLING ---
-    function syncData() { 
-        db.on('value', (s) => { 
-            appData = s.val() || {}; 
-            if(!appData.Depts) appData.Depts = ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"];
-            renderGrid(); 
-        }); 
-    }
+    function syncData() { db.on('value', (s) => { appData = s.val() || {}; renderGrid(); }); }
+    function fetchAllStaff() { profDB.on('value', (s) => { allStaffRaw = s.val() || {}; }); }
 
-    function fetchAllStaff() {
-        profDB.on('value', (s) => { allStaffRaw = s.val() || {}; });
-    }
-
+    // RENDER THE NEW EXCEL STYLE GRID
     function renderGrid() {
-        const grid = document.getElementById('deptGrid');
-        grid.innerHTML = "";
-        const depts = appData.Depts || [];
+        const tableBody = document.getElementById('excelDutyBody');
+        tableBody.innerHTML = "";
+        const depts = appData.Depts || ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"];
+        
         depts.forEach(d => {
-            grid.innerHTML += `
-                <div onclick="openSlots('${d}')" class="p-6 bg-white rounded-[35px] border border-blue-50 shadow-sm flex flex-col items-center btn-active cursor-pointer">
-                    <span class="text-3xl mb-2">🏥</span>
-                    <span class="font-black text-blue-900 text-xs uppercase">${d}</span>
-                </div>`;
-        });
-    }
+            const limit = (d === 'OPD') ? 10 : 6;
+            let staffSlotsHTML = "";
 
-    function openSlots(d) {
-        showSection('listPage');
-        document.getElementById('lTitle').innerText = d;
-        document.getElementById('lSub').innerText = `${shift} | ${selDate}`;
-        let h = "";
-        const limit = (d === 'OPD') ? 10 : 6;
-        for(let i=1; i<=limit; i++) {
-            let key = `${selDate}_${d}_${i}_${shift}`;
-            let val = appData[key] || "---";
-            const handler = role === 'admin' ? `onclick="openRangeModal('${key}')"` : "";
-            h += `
-                <div class="p-4 bg-slate-50 rounded-2xl flex justify-between items-center border-l-4 border-blue-600">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase">Slot ${i}</span>
-                    <span ${handler} class="${role==='admin'?'cursor-pointer text-blue-600 underline font-black':'font-black text-gray-800'}">${val}</span>
-                </div>`;
-        }
-        document.getElementById('lBody').innerHTML = h;
-    }
+            for(let i=1; i<=limit; i++) {
+                let key = `${selDate}_${d}_${i}_${shift}`;
+                let val = appData[key] || "---";
+                const actionAttr = role === 'admin' ? `onclick="openRangeModal('${key}')"` : "";
+                const bgClass = val === "---" ? "bg-gray-50 text-gray-400 border-dashed" : "bg-blue-50 text-blue-800 border-blue-200";
 
-    // --- STAFF MANAGEMENT ---
-    function saveProfile() {
-        const key = document.getElementById('editStaffKey').value;
-        const data = {
-            name: document.getElementById('pName').value.trim(),
-            id: document.getElementById('pID').value.trim(),
-            mob: document.getElementById('pMobile').value.trim(),
-            exp: document.getElementById('pExp').value.trim()
-        };
-        if(!data.name || !data.exp) {
-            showToast("નામ અને અનુભવ જરૂરી છે!");
-            return;
-        }
+                staffSlotsHTML += `
+                    <div ${actionAttr} class="inline-flex items-center m-1 px-3 py-2 rounded-xl border text-[11px] font-bold cursor-pointer transition-all active:scale-95 ${bgClass}">
+                        <span class="opacity-50 mr-1">${i}.</span>
+                        <span class="uppercase">${val}</span>
+                    </div>`;
+            }
 
-        if(key) {
-            profDB.child(key).update(data).then(() => { 
-                showToast("સુધારો થઈ ગયો!"); 
-                resetStaffForm(); 
-                showSection('staffListSection'); 
-                loadStaffRecords(); 
-            });
-        } else {
-            profDB.push(data).then(() => { 
-                showToast("સ્ટાફ સેવ થઈ ગયો!"); 
-                resetStaffForm(); 
-                showSection('dutySection'); 
-            });
-        }
-    }
-
-    function loadStaffRecords() {
-        const cont = document.getElementById('staffListCont');
-        cont.innerHTML = "";
-        Object.keys(allStaffRaw).forEach(key => {
-            const x = allStaffRaw[key];
-            cont.innerHTML += `
-                <tr class="border-b">
-                    <td class="p-4 uppercase text-blue-900">${x.name}</td>
-                    <td class="p-4"><span class="exp-tag">${x.exp}</span></td>
-                    <td class="p-4 flex justify-center space-x-2">
-                        <button onclick="editStaff('${key}')" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-[10px]">EDIT</button>
-                        <button onclick="deleteStaff('${key}')" class="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-[10px]">DEL</button>
+            tableBody.innerHTML += `
+                <tr>
+                    <td class="p-3 bg-slate-50 border-r align-middle">
+                        <div class="text-center">
+                            <span class="font-black text-blue-900 text-[10px] uppercase block">${d}</span>
+                        </div>
+                    </td>
+                    <td class="p-2 bg-white">
+                        <div class="flex flex-wrap">${staffSlotsHTML}</div>
                     </td>
                 </tr>`;
         });
     }
 
-    function editStaff(key) {
-        const s = allStaffRaw[key];
-        document.getElementById('editStaffKey').value = key;
-        document.getElementById('pName').value = s.name;
-        document.getElementById('pID').value = s.id;
-        document.getElementById('pMobile').value = s.mob;
-        document.getElementById('pExp').value = s.exp;
-        document.getElementById('formTitle').innerText = "Edit Staff Details";
-        document.getElementById('saveStaffBtn').innerText = "UPDATE STAFF";
-        document.getElementById('cancelEditBtn').classList.remove('hidden');
-        showSection('profileSection');
+    function openRangeModal(key) {
+        editKey = key;
+        const parts = key.split('_');
+        document.getElementById('modalTitle').innerText = `${parts[1]} - Slot ${parts[2]}`;
+        document.getElementById('rStaff').value = (appData[key] === "---") ? "" : appData[key];
+        document.getElementById('rStart').value = selDate;
+        document.getElementById('rEnd').value = selDate;
+        document.getElementById('rangeModal').classList.remove('hidden');
+        showSuggestions("");
     }
 
-    function deleteStaff(key) {
-        if(confirm("શું તમે આ સ્ટાફને ડિલીટ કરવા માંગો છો?")) {
-            profDB.child(key).remove().then(() => {
-                showToast("સ્ટાફ ડિલીટ થયો!");
-                loadStaffRecords();
-            });
-        }
-    }
+    function closeModal() { document.getElementById('rangeModal').classList.add('hidden'); }
 
-    function resetStaffForm() {
-        document.getElementById('editStaffKey').value = "";
-        document.getElementById('pName').value = "";
-        document.getElementById('pID').value = "";
-        document.getElementById('pMobile').value = "";
-        document.getElementById('pExp').value = "";
-        document.getElementById('formTitle').innerText = "Add New Staff";
-        document.getElementById('saveStaffBtn').innerText = "SAVE STAFF";
-        document.getElementById('cancelEditBtn').classList.add('hidden');
-    }
-
-    function filterStaffTable() {
-        let input = document.getElementById("staffSearch").value.toUpperCase();
-        let rows = document.getElementById("staffListCont").getElementsByTagName("tr");
-        for (let i = 0; i < rows.length; i++) {
-            rows[i].style.display = (rows[i].textContent.toUpperCase().indexOf(input) > -1) ? "" : "none";
-        }
-    }
-
-    // --- DEPT MANAGEMENT ---
-    function addDepartment() {
-        const input = document.getElementById('newDeptInput');
-        const name = input.value.trim().toUpperCase();
-        if(!name) return;
-        let depts = appData.Depts || [];
-        if(depts.includes(name)) {
-            showToast("વિભાગ પહેલેથી છે!");
-            return;
-        }
-        depts.push(name);
-        db.child("Depts").set(depts).then(() => { 
-            input.value = ""; 
-            renderDeptManager(); 
-            showToast("નવો વિભાગ ઉમેરાયો!");
-        });
-    }
-
-    function removeDept(name) {
-        if(confirm(`શું તમે ખરેખર "${name}" વિભાગ કાઢી નાખવા માંગો છો?`)) {
-            let depts = appData.Depts.filter(d => d !== name);
-            db.child("Depts").set(depts).then(() => {
-                renderDeptManager();
-                showToast("વિભાગ દૂર થયો!");
-            });
-        }
-    }
-
-    function renderDeptManager() {
-        const cont = document.getElementById('deptListItems');
-        const depts = appData.Depts || [];
-        cont.innerHTML = depts.map(d => `
-            <div class="flex justify-between items-center p-4 bg-blue-50/50 rounded-2xl border border-blue-100 shadow-sm">
-                <span class="font-bold text-blue-900">${d}</span>
-                <button onclick="removeDept('${d}')" class="text-red-500 font-black text-[10px] bg-red-50 px-3 py-2 rounded-xl">REMOVE</button>
-            </div>
-        `).join('');
-    }
-
-    // --- DUTY ASSIGNMENT ---
-    function openRangeModal(key) { editKey = key; document.getElementById('rStaff').value = (appData[key] === "---") ? "" : appData[key]; document.getElementById('rStart').value = selDate; document.getElementById('rEnd').value = selDate; document.getElementById('rangeModal').classList.remove('hidden'); showSuggestions(""); }
-    function closeModal() { document.getElementById('rangeModal').classList.add('hidden'); document.getElementById('staffSuggestions').classList.add('hidden'); }
-    
     function showSuggestions(val) {
         const box = document.getElementById('staffSuggestions');
-        const currentDept = editKey.split('_')[1].toLowerCase();
-        const filtered = Object.values(allStaffRaw).filter(staff => {
-            const hasExp = staff.exp && staff.exp.toLowerCase().includes(currentDept);
-            const matchesSearch = staff.name.toLowerCase().includes(val.toLowerCase());
-            return hasExp && matchesSearch;
-        });
-        if (filtered.length > 0) {
-            box.innerHTML = filtered.map(staff => `<div class="suggestion-item" onclick="selectStaff('${staff.name}')"><span class="staff-name font-bold">${staff.name}</span><span class="exp-tag">${staff.exp}</span></div>`).join('');
+        const dept = editKey.split('_')[1].toLowerCase();
+        const filtered = Object.values(allStaffRaw).filter(s => 
+            s.name.toLowerCase().includes(val.toLowerCase()) && 
+            (s.exp && s.exp.toLowerCase().includes(dept))
+        );
+        if(filtered.length > 0) {
+            box.innerHTML = filtered.map(s => `<div class="suggestion-item" onclick="selectStaff('${s.name}')"><span class="font-bold">${s.name}</span><span class="exp-tag">${s.exp}</span></div>`).join('');
             box.classList.remove('hidden');
-        } else {
-            box.innerHTML = `<div class="p-4 text-center text-gray-400 text-xs">કોઈ સ્ટાફ મળ્યો નથી.</div>`;
-            box.classList.remove('hidden');
-        }
+        } else { box.innerHTML = `<div class="p-4 text-xs text-gray-400">No match for ${dept}</div>`; box.classList.remove('hidden'); }
     }
 
-    function selectStaff(name) { document.getElementById('rStaff').value = name; document.getElementById('staffSuggestions').classList.add('hidden'); }
-    
+    function selectStaff(n) { document.getElementById('rStaff').value = n; document.getElementById('staffSuggestions').classList.add('hidden'); }
+
     function saveRangeDuty() {
         const name = document.getElementById('rStaff').value.trim() || "---";
         const start = new Date(document.getElementById('rStart').value);
         const end = new Date(document.getElementById('rEnd').value);
-        const parts = editKey.split('_'); 
-        let updates = {};
-        let temp = new Date(start);
-        while(temp <= end) {
-            let k = `${temp.toISOString().split('T')[0]}_${parts[1]}_${parts[2]}_${parts[3]}`;
-            updates[k] = name;
-            temp.setDate(temp.getDate() + 1);
+        const p = editKey.split('_');
+        let up = {};
+        let t = new Date(start);
+        while(t <= end) {
+            let k = `${t.toISOString().split('T')[0]}_${p[1]}_${p[2]}_${p[3]}`;
+            up[k] = name;
+            t.setDate(t.getDate() + 1);
         }
-        db.update(updates).then(() => { 
-            closeModal(); 
-            openSlots(parts[1]); 
-            showToast("ડ્યુટી સેવ થઈ ગઈ!");
-        });
+        db.update(up).then(() => { closeModal(); showToast("ડ્યુટી અપડેટ થઈ ગઈ!"); });
     }
 
-    // --- REPORTS ---
-    function loadFullDutyRecords() {
-        const cont = document.getElementById('fullDutyCont');
-        const sDate = document.getElementById('fStart').value;
-        const eDate = document.getElementById('fEnd').value;
-        cont.innerHTML = "";
-        let rows = [];
-        Object.keys(appData).forEach(k => {
-            const p = k.split('_');
-            if(p.length === 4 && appData[k] !== "---") {
-                if ((!sDate || p[0] >= sDate) && (!eDate || p[0] <= eDate)) 
-                rows.push({ d: p[0], dep: p[1], sl: p[2], sh: p[3], n: appData[k] });
-            }
-        });
-        rows.sort((a,b) => new Date(b.d) - new Date(a.d)).forEach(r => {
-            cont.innerHTML += `<tr class="border-b"><td class="p-3">${r.d}</td><td class="p-3">${r.n}</td><td class="p-3">${r.dep}</td><td class="p-3">${r.sh}</td></tr>`;
-        });
+    function toggleShift() { shift = (shift === "Day") ? "Night" : "Day"; document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙"; renderGrid(); }
+    function refreshData() { selDate = document.getElementById('dateInput').value; renderGrid(); }
+
+    function saveProfile() {
+        const data = { name: document.getElementById('pName').value, exp: document.getElementById('pExp').value };
+        profDB.push(data).then(() => { showToast("સ્ટાફ ઉમેરાયો!"); showSection('dutySection'); });
     }
 
-    function downloadDutyPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const sDate = document.getElementById('fStart').value || "All";
-        const eDate = document.getElementById('fEnd').value || "All";
-        doc.setFontSize(18);
-        doc.text("Sanskardham Hospital - Duty Report", 14, 20);
-        doc.setFontSize(10);
-        doc.text(`Period: ${sDate} to ${eDate}`, 14, 30);
-        let rows = [];
-        Object.keys(appData).forEach(k => {
-            const p = k.split('_');
-            if(p.length === 4 && appData[k] !== "---") {
-                if ((!sDate || sDate === "All" || p[0] >= sDate) && (!eDate || eDate === "All" || p[0] <= eDate)) 
-                rows.push([p[0], appData[k].toUpperCase(), p[1], p[3]]);
-            }
-        });
-        rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
-        doc.autoTable({ startY: 40, head: [['Date', 'Staff Name', 'Department', 'Shift']], body: rows, headStyles: { fillColor: [30, 58, 138] } });
-        doc.save(`Duty_Report_${sDate}.pdf`);
-    }
-
-    function downloadStaffPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(18);
-        doc.setTextColor(30, 58, 138);
-        doc.text("Sanskardham Hospital - Staff Records", 14, 20);
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text(`Total Staff: ${Object.keys(allStaffRaw).length}`, 14, 28);
-        let rows = [];
-        Object.keys(allStaffRaw).forEach(key => {
-            const s = allStaffRaw[key];
-            rows.push([s.name.toUpperCase(), s.id || "N/A", s.mob || "N/A", s.exp.toUpperCase()]);
-        });
-        rows.sort((a, b) => a[0].localeCompare(b[0]));
-        doc.autoTable({ startY: 35, head: [['Staff Name', 'Staff ID', 'Mobile', 'Experience']], body: rows, theme: 'striped', headStyles: { fillColor: [79, 70, 229] } });
-        doc.save(`Staff_List_${new Date().toISOString().split('T')[0]}.pdf`);
-    }
-
-    // --- HELPERS ---
-    function toggleShift() { shift = (shift === "Day") ? "Night" : "Day"; document.getElementById('shiftIco').innerText = (shift === "Day") ? "☀️" : "🌙"; refreshData(); }
-    function refreshData() { selDate = document.getElementById('dateInput').value; if(!document.getElementById('listPage').classList.contains('hidden')) openSlots(document.getElementById('lTitle').innerText); }
-    
     function searchName() {
         const q = document.getElementById('searchBar').value.toLowerCase();
-        let foundDep = "";
         if(!q) { document.getElementById('searchRes').classList.add('hidden'); return; }
-        for(let k in appData) { if(k.startsWith(selDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) { foundDep = k.split('_')[1]; break; } }
-        const resDiv = document.getElementById('searchRes');
-        resDiv.classList.remove('hidden');
-        resDiv.innerHTML = foundDep ? `✅ તમારી ડ્યુટી ${foundDep} માં છે.` : `⚠️ નામ મળ્યું નથી.`;
-        resDiv.className = `p-4 rounded-2xl font-bold text-center ${foundDep?'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`;
+        let found = "";
+        for(let k in appData) { if(k.startsWith(selDate) && k.endsWith(shift) && appData[k].toLowerCase().includes(q)) { found = k.split('_')[1]; break; } }
+        const res = document.getElementById('searchRes');
+        res.classList.remove('hidden');
+        res.innerHTML = found ? `✅ તમારી ડ્યુટી ${found} માં છે.` : `❌ નામ મળ્યું નથી.`;
+        res.className = `p-4 rounded-2xl font-bold text-center ${found?'bg-green-50 text-green-700':'bg-red-50 text-red-700'}`;
+    }
+
+    function renderDeptManager() {
+        const depts = appData.Depts || ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"];
+        document.getElementById('deptListItems').innerHTML = depts.map(d => `<div class="p-3 bg-gray-50 flex justify-between rounded-xl"><b>${d}</b><button onclick="removeDept('${d}')" class="text-red-500">Del</button></div>`).join('');
+    }
+
+    function addDepartment() {
+        let depts = appData.Depts || ["OPD", "EMERGENCY", "ORTHOPEDIC", "OFF LIST"];
+        const n = document.getElementById('newDeptInput').value.toUpperCase();
+        if(n && !depts.includes(n)) { depts.push(n); db.child('Depts').set(depts); renderDeptManager(); }
+    }
+
+    function loadStaffRecords() {
+        const cont = document.getElementById('staffListCont'); cont.innerHTML = "";
+        Object.keys(allStaffRaw).forEach(k => {
+            const s = allStaffRaw[k];
+            cont.innerHTML += `<tr class="border-b"><td class="p-4 uppercase">${s.name}</td><td class="p-4"><span class="exp-tag">${s.exp}</span></td><td class="p-4 text-center"><button onclick="profDB.child('${k}').remove()" class="text-red-500">Del</button></td></tr>`;
+        });
+    }
+
+    function loadFullDutyRecords() {
+        const s = document.getElementById('fStart').value;
+        const e = document.getElementById('fEnd').value;
+        const cont = document.getElementById('fullDutyCont'); cont.innerHTML = "";
+        for(let k in appData) {
+            const p = k.split('_');
+            if(p.length===4 && appData[k]!=="---") {
+                if((!s || p[0]>=s) && (!e || p[0]<=e)) 
+                cont.innerHTML += `<div class="p-3 bg-white border rounded-xl text-[10px]"><b>${p[0]}</b> | ${appData[k]} | ${p[1]} | ${p[3]}</div>`;
+            }
+        }
     }
 </script>
+
 </body>
 </html>
